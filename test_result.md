@@ -346,7 +346,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -356,6 +356,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Tested the seat selection and booking flow. The seat layout API works correctly, but the booking creation still returns 'Some seats are already booked' error even for seats that should be available."
+      - working: false
+        agent: "testing"
+        comment: "Tested the booking flow with seat selection. The booking creation still returns 400 Bad Request with 'Some seats are already booked' error. The issue persists despite the ObjectId serialization fixes."
 
   - task: "Bulk Operations"
     implemented: true
