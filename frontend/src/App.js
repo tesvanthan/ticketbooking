@@ -1171,6 +1171,8 @@ function App() {
           <Route path="/tickets" element={<TicketManagement />} />
           <Route path="/print-tickets" element={<TicketManagement />} />
           <Route path="/payment" element={<PaymentManagement />} />
+          <Route path="/track/:bookingId" element={<SmartTrackingAI />} />
+          <Route path="/tracking" element={<SmartTrackingAI />} />
           <Route path="/routes" element={<BookingPage />} />
           <Route path="/about" element={<BookingPage />} />
           <Route path="/contact" element={<BookingPage />} />
