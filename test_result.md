@@ -219,20 +219,20 @@ backend:
         agent: "testing"
         comment: "Ticket download endpoint works correctly, but ticket send endpoint returns a 500 error when creating a booking."
 
-  - task: "Enhanced Search"
+  - task: "Affiliate Program"
     implemented: true
     working: true
     file: "/app/backend/main.py"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
-        comment: "Enhanced search endpoints for different transport types are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+        comment: "Affiliate program endpoints (status, registration, stats, activity) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
       - working: true
         agent: "testing"
-        comment: "Enhanced search endpoints for different transport types (bus, ferry) are now working correctly in server.py."
+        comment: "All affiliate program endpoints (status, registration, stats, activity) are now working correctly in server.py."
 
   - task: "Payment Flow"
     implemented: true
