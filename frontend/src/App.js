@@ -40,7 +40,8 @@ import {
   Settings,
   CreditCard as CardIcon,
   BarChart3,
-  Loader2
+  Loader2,
+  Cog
 } from 'lucide-react';
 import './App.css';
 import { 
@@ -53,6 +54,7 @@ import {
   Payment,
   BookingConfirmation
 } from './components';
+import { ManagementDashboard } from './ManagementDashboard';
 
 // Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
