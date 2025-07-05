@@ -1177,6 +1177,13 @@ function App() {
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/management" element={<ManagementDashboard />} />
           <Route path="/admin" element={<AdminManagement />} />
+          <Route path="/routes-management" element={<RouteManagement />} />
+          <Route path="/agents-management" element={<AgentManagement />} />
+          <Route path="/seats-management" element={<SmartSeatManagement />} />
+          <Route path="/flight-operations" element={<FlightOperationManagement />} />
+          <Route path="/taxi-operations" element={<TaxiOperationManagement />} />
+          <Route path="/ferry-operations" element={<FerryOperationManagement />} />
+          <Route path="/notifications" element={<SmartNotificationSystem />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/affiliate" element={<AffiliateProgram />} />
           <Route path="/affiliate-program" element={<AffiliateProgram />} />
