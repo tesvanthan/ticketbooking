@@ -85,16 +85,42 @@ class BusTicketAPITest(unittest.TestCase):
         
     def test_04_get_user_profile(self):
         """Test getting user profile"""
-        if not self.token:
-            self.test_03_login_user()
+        # Register and login a new user specifically for this test
+        test_email = f"profile_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Profile",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
             
+        # Get profile
         response = requests.get(
             f"{self.base_url}/auth/me",
-            headers={"Authorization": f"Bearer {self.token}"}
+            headers={"Authorization": f"Bearer {token}"}
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["email"], self.test_user["email"])
+        self.assertEqual(data["email"], test_user["email"])
         print("✅ User profile retrieval successful")
         
     def test_04a_auth_error_handling(self):
