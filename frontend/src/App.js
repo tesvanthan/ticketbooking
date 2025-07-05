@@ -332,14 +332,21 @@ const SearchSection = ({ activeTab, onSearch }) => {
       return;
     }
 
+    console.log('Starting search with:', searchData);
     setLoading(true);
     const searchPayload = {
       ...searchData,
       transport_type: activeTab
     };
     
-    await onSearch(searchPayload);
-    setLoading(false);
+    try {
+      await onSearch(searchPayload);
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Search failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
