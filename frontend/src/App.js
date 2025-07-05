@@ -1122,12 +1122,24 @@ const BookingPage = () => {
   };
 
   const handleSelectRoute = async (route) => {
+    console.log('Route selected:', route);
+    
+    // Check if user is authenticated for seat selection
     if (!user) {
+      // Store route selection for after login
+      sessionStorage.setItem('pendingRouteSelection', route.id);
       alert('Please login to continue booking');
       return;
     }
-    setSelectedRoute(route);
-    setCurrentStep('seats');
+    
+    try {
+      console.log('Setting selected route:', route);
+      setSelectedRoute(route);
+      setCurrentStep('seats');
+    } catch (error) {
+      console.error('Error handling route selection:', error);
+      alert('An error occurred while selecting the route. Please try again.');
+    }
   };
 
   const handleConfirmBooking = async (bookingDetails) => {
