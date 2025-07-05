@@ -324,11 +324,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Search Form Component"
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
   stuck_tasks:
-    - "Search Form Component"
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
     - "User Profile Features"
