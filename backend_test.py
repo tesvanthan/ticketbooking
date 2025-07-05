@@ -79,6 +79,32 @@ class BusTicketAPITest(unittest.TestCase):
         self.assertEqual(data["email"], self.test_user["email"])
         print("✅ User profile retrieval successful")
         
+    def test_04a_auth_error_handling(self):
+        """Test authentication error handling"""
+        # Test with invalid token
+        response = requests.get(
+            f"{self.base_url}/auth/me",
+            headers={"Authorization": "Bearer invalid_token"}
+        )
+        self.assertEqual(response.status_code, 401)
+        print("✅ Invalid token handling successful")
+        
+        # Test with missing token
+        response = requests.get(f"{self.base_url}/auth/me")
+        self.assertIn(response.status_code, [401, 403, 422])  # Different frameworks handle this differently
+        print("✅ Missing token handling successful")
+        
+        # Test with invalid login credentials
+        response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": "nonexistent@example.com",
+                "password": "WrongPassword123"
+            }
+        )
+        self.assertEqual(response.status_code, 401)
+        print("✅ Invalid login credentials handling successful")
+        
     def test_05_search_routes(self):
         """Test route search functionality with various parameters"""
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
