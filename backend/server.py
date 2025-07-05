@@ -1119,12 +1119,16 @@ async def update_user_permissions(user_id: str, permissions_data: dict, current_
 @app.get("/api/admin/buses")
 async def get_all_buses(current_user: dict = Depends(get_current_user)):
     """Get all buses for admin management"""
-    buses = await db.buses.find({}).to_list(length=1000)
-    
-    for bus in buses:
-        bus["id"] = str(bus["_id"])
-    
-    return buses
+    try:
+        buses = await db.buses.find({}).to_list(length=1000)
+        
+        for bus in buses:
+            bus["id"] = str(bus["_id"])
+        
+        return buses
+    except Exception as e:
+        logger.error(f"Error getting all buses: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/admin/buses")
 async def create_bus(bus_data: dict, current_user: dict = Depends(get_current_user)):
