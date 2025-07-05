@@ -8,7 +8,7 @@ class BusTicketAPITest(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment before each test"""
-        self.base_url = "https://4e850de7-0fe2-4e5f-bc14-102dd2b91bee.preview.emergentagent.com/api"
+        self.base_url = "http://localhost:8001/api"
         self.test_user = {
             "email": f"test_user_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com",
             "password": "Test123!",
