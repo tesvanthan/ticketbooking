@@ -541,23 +541,36 @@ async def create_booking(booking: BookingRequest, current_user: dict = Depends(g
 @app.get("/api/bookings")
 async def get_user_bookings(current_user: dict = Depends(get_current_user)):
     """Get user's bookings"""
-    bookings = await db.bookings.find({
-        "user_id": str(current_user["_id"])
-    }).sort("created_at", -1).to_list(length=100)
-    
-    for booking in bookings:
-        booking["id"] = str(booking["_id"])
-        # Get route details
-        route_parts = booking["route_id"].split("-")
-        route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
-        if route:
-            booking["route_details"] = {
-                "origin": route["origin"],
-                "destination": route["destination"],
-                "duration": route["duration"]
-            }
-    
-    return bookings
+    try:
+        bookings = await db.bookings.find({
+            "user_id": str(current_user["_id"])
+        }).sort("created_at", -1).to_list(length=100)
+        
+        for booking in bookings:
+            booking["id"] = str(booking["_id"])
+            # Get route details safely
+            try:
+                route_parts = booking["route_id"].split("-")
+                if route_parts and len(route_parts) > 0:
+                    route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
+                    if route:
+                        booking["route_details"] = {
+                            "origin": route["origin"],
+                            "destination": route["destination"],
+                            "duration": route["duration"]
+                        }
+            except Exception as e:
+                logger.warning(f"Could not fetch route details for booking {booking['id']}: {e}")
+                booking["route_details"] = {
+                    "origin": "Unknown",
+                    "destination": "Unknown", 
+                    "duration": "Unknown"
+                }
+        
+        return bookings
+    except Exception as e:
+        logger.error(f"Error fetching user bookings: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch bookings")
 
 @app.get("/api/bookings/{booking_id}")
 async def get_booking_details(booking_id: str, current_user: dict = Depends(get_current_user)):
