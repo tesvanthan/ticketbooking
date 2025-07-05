@@ -995,7 +995,32 @@ const BookingPage = () => {
 
   const handleSearch = async (data) => {
     setSearchData(data);
-    setCurrentStep('results');
+    setLoading(true);
+    
+    try {
+      console.log('Searching with data:', data);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (response.ok) {
+        const results = await response.json();
+        console.log('Search results:', results);
+        setSearchResults(results);
+        setCurrentStep('results');
+      } else {
+        throw new Error('Search failed');
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Search failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSelectRoute = async (route) => {
