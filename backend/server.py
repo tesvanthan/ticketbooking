@@ -1099,7 +1099,8 @@ async def get_all_users(current_user: dict = Depends(get_current_user)):
             user["role"] = user.get("role", "passenger")
             user["status"] = user.get("status", "active")
         
-        return users
+        # Use jsonable_encoder to properly serialize ObjectId objects
+        return jsonable_encoder(users, custom_encoder={ObjectId: str})
     except Exception as e:
         logger.error(f"Error getting all users: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
