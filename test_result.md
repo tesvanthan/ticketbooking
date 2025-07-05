@@ -260,6 +260,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Admin user endpoint returns 500 error. Admin user permissions and admin buses endpoints work correctly. Admin routes endpoint returns 500 error. Admin stats endpoint works correctly."
+      - working: false
+        agent: "testing"
+        comment: "Confirmed that admin users, routes, and buses APIs all return 500 errors. Only the admin stats API works correctly. The issue is likely in the database queries or data processing for these endpoints."
 
   - task: "Seat Layout API"
     implemented: true
