@@ -320,8 +320,33 @@ class BusTicketAPITest(unittest.TestCase):
             
     def test_09_create_booking(self):
         """Test booking creation"""
-        if not self.token:
-            self.test_03_login_user()
+        # Register and login a new user for this test
+        test_email = f"booking_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Booking",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
             
         # First search for routes
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -370,7 +395,7 @@ class BusTicketAPITest(unittest.TestCase):
                 
                 response = requests.post(
                     f"{self.base_url}/bookings",
-                    headers={"Authorization": f"Bearer {self.token}"},
+                    headers={"Authorization": f"Bearer {token}"},
                     json=booking_data
                 )
                 
@@ -395,7 +420,7 @@ class BusTicketAPITest(unittest.TestCase):
                 
                 payment_response = requests.post(
                     f"{self.base_url}/payments/process",
-                    headers={"Authorization": f"Bearer {self.token}"},
+                    headers={"Authorization": f"Bearer {token}"},
                     json=payment_data
                 )
                 
@@ -403,6 +428,18 @@ class BusTicketAPITest(unittest.TestCase):
                 payment_result = payment_response.json()
                 self.assertEqual(payment_result["status"], "success")
                 print(f"✅ Payment processing successful: {payment_result['transaction_id']}")
+                
+                # Test retrieving user bookings
+                bookings_response = requests.get(
+                    f"{self.base_url}/bookings",
+                    headers={"Authorization": f"Bearer {token}"}
+                )
+                
+                self.assertEqual(bookings_response.status_code, 200)
+                bookings_data = bookings_response.json()
+                self.assertIsInstance(bookings_data, list)
+                self.assertGreater(len(bookings_data), 0)
+                print(f"✅ User bookings retrieval successful: Found {len(bookings_data)} bookings")
             else:
                 print("⚠️ Skipping booking test as no available seats were found")
         else:
