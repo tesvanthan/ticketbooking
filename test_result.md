@@ -120,20 +120,20 @@ backend:
         agent: "testing"
         comment: "Comprehensive backend testing completed. All core APIs working correctly including health check."
 
-  - task: "Search API Endpoint"
+  - task: "Ticket Management"
     implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
+    working: false
+    file: "/app/backend/main.py"
+    stuck_count: 1
+    priority: "medium"
     needs_retesting: false
     status_history:
-      - working: true
-        agent: "main"
-        comment: "Search endpoint /api/search exists and functional, needs testing with frontend integration"
-      - working: true
+      - working: false
         agent: "testing"
-        comment: "Thoroughly tested search API with various parameters: different origins/destinations, dates, transport types, case-insensitive searches, future dates. All working correctly."
+        comment: "Ticket management endpoints (download, send) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+      - working: false
+        agent: "testing"
+        comment: "Ticket download endpoint works correctly, but ticket send endpoint returns a 500 error when creating a booking."
 
   - task: "Auto-suggestions API"
     implemented: true
