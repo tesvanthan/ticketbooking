@@ -451,8 +451,16 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
       setError('');
     }
   }, [searchResults]);
-      <div className="text-center py-16">
-        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+
+  return (
+    <div className="py-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        {searchResults.length} routes found
+      </h2>
+      {/* Rest of the component rendering logic */}
+    </div>
+  );
+};
         <p className="text-red-600 mb-4">{error}</p>
         <button 
           onClick={performSearch}
