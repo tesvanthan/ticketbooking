@@ -1073,6 +1073,7 @@ function App() {
         <Routes>
           <Route path="/" element={<BookingPage />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/management" element={<ManagementDashboard />} />
           <Route path="/routes" element={<BookingPage />} />
           <Route path="/about" element={<BookingPage />} />
           <Route path="/contact" element={<BookingPage />} />
