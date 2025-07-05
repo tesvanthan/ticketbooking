@@ -1078,6 +1078,9 @@ const BookingPage = () => {
       {currentStep === 'search' && (
         <>
           <SearchSection activeTab={activeTab} onSearch={handleSearch} />
+          <div className="container mx-auto px-4">
+            <QuickBuyWidget onQuickBook={(data) => handleSearch(data)} />
+          </div>
           <FeaturesSection />
           <PopularRoutes />
           <AIFeaturesSection />
