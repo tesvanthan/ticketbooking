@@ -108,7 +108,7 @@ backend:
   - task: "API Health Check"
     implemented: true
     working: true
-    file: "/app/backend/main.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -123,7 +123,7 @@ backend:
   - task: "Search API Endpoint"
     implemented: true
     working: true
-    file: "/app/backend/main.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -138,7 +138,7 @@ backend:
   - task: "Auto-suggestions API"
     implemented: true
     working: true
-    file: "/app/backend/main.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -153,7 +153,7 @@ backend:
   - task: "Authentication System"
     implemented: true
     working: true
-    file: "/app/backend/main.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
@@ -165,7 +165,7 @@ backend:
   - task: "Booking Flow APIs"
     implemented: true
     working: true
-    file: "/app/backend/main.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
@@ -173,6 +173,54 @@ backend:
       - working: true
         agent: "testing"
         comment: "Booking flow tested: seat selection, booking creation, payment processing all working. Minor issue with booking retrieval after payment but core functionality intact."
+
+  - task: "User Profile Features"
+    implemented: true
+    working: false
+    file: "/app/backend/main.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "User profile features (credit, upcoming/past bookings, invites, profile updates, password changes) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+
+  - task: "Affiliate Program"
+    implemented: true
+    working: false
+    file: "/app/backend/main.py"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Affiliate program endpoints (status, registration, stats, activity) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+
+  - task: "Ticket Management"
+    implemented: true
+    working: false
+    file: "/app/backend/main.py"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Ticket management endpoints (download, send) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+
+  - task: "Enhanced Search"
+    implemented: true
+    working: false
+    file: "/app/backend/main.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Enhanced search endpoints for different transport types are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
 
 frontend:
   - task: "Search Form Component"
@@ -226,6 +274,10 @@ test_plan:
     - "Search Form Component"
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
+    - "User Profile Features"
+    - "Affiliate Program"
+    - "Ticket Management"
+    - "Enhanced Search"
   test_all: false
   test_priority: "stuck_first"
 
@@ -234,3 +286,5 @@ agent_communication:
     message: "Identified search functionality issues. Backend APIs working correctly. Frontend implementation exists but user reports functionality not working. Need to test frontend search flow and auto-fill features systematically."
   - agent: "testing"
     message: "Completed comprehensive testing of backend APIs. Search and auto-suggestions endpoints are working correctly with various parameters. Authentication system is functioning properly. Booking flow works but there's a minor issue with retrieving bookings after payment processing (500 error). The backend APIs are solid - frontend integration issues are likely causing the reported problems."
+  - agent: "testing"
+    message: "Found critical issue: The new endpoints (user profile features, affiliate program, ticket management, enhanced search) are defined in main.py but the server is running from server.py. This is causing 404 errors for these endpoints. The core functionality (search, authentication, booking) works correctly because those endpoints are defined in both files. To fix this, either move the new endpoints to server.py or update the supervisor configuration to run from main.py instead."
