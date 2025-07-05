@@ -279,7 +279,7 @@ const Header = ({ activeTab, setActiveTab }) => {
   );
 };
 
-// Enhanced Search Section with Real API Integration
+// Enhanced Multi-Transport Search Section with better date handling
 const SearchSection = ({ activeTab, onSearch }) => {
   const [searchData, setSearchData] = useState({
     origin: '',
@@ -290,6 +290,12 @@ const SearchSection = ({ activeTab, onSearch }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [activeSuggestion, setActiveSuggestion] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Set default date to today
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setSearchData(prev => ({ ...prev, date: today }));
+  }, []);
 
   const handleInputChange = async (field, value) => {
     setSearchData(prev => ({ ...prev, [field]: value }));
@@ -305,14 +311,16 @@ const SearchSection = ({ activeTab, onSearch }) => {
           }
         } catch (error) {
           console.error('Error fetching suggestions:', error);
-          // Fallback to static suggestions if API fails
-          const staticSuggestions = [
-            'Phnom Penh', 'Siem Reap', 'Sihanoukville', 'Kampot', 'Kep',
-            'Battambang', 'Poipet', 'Banteay Meanchey', 'Svay Rieng'
-          ];
-          const filtered = staticSuggestions.filter(dest => 
-            dest.toLowerCase().includes(value.toLowerCase())
-          );
+          // Enhanced fallback suggestions based on transport type
+          const transportSuggestions = {
+            bus: ['Phnom Penh', 'Siem Reap', 'Sihanoukville', 'Kampot', 'Kep', 'Battambang', 'Poipet'],
+            ferry: ['Sihanoukville', 'Koh Rong', 'Koh Rong Sanloem', 'Koh Kong'],
+            private: ['Phnom Penh', 'Siem Reap', 'Sihanoukville', 'Airport'],
+            airport: ['Phnom Penh Airport', 'Siem Reap Airport', 'Sihanoukville Airport']
+          };
+          
+          const filtered = (transportSuggestions[activeTab] || transportSuggestions.bus)
+            .filter(dest => dest.toLowerCase().includes(value.toLowerCase()));
           setSuggestions(filtered.slice(0, 5));
           setActiveSuggestion(field);
         }
@@ -351,6 +359,18 @@ const SearchSection = ({ activeTab, onSearch }) => {
       setLoading(false);
     }
   };
+
+  // Get search placeholder text based on transport type
+  const getPlaceholderText = () => {
+    switch (activeTab) {
+      case 'private': return { origin: 'Pickup location', destination: 'Drop-off location' };
+      case 'airport': return { origin: 'From (City/Airport)', destination: 'To (City/Airport)' };
+      case 'ferry': return { origin: 'Port of departure', destination: 'Destination port' };
+      default: return { origin: 'Select place of origin', destination: 'Select destination' };
+    }
+  };
+
+  const placeholders = getPlaceholderText();
 
   return (
     <section className="relative bg-gradient-to-br from-blue-600 to-purple-700 text-white">
@@ -395,7 +415,7 @@ const SearchSection = ({ activeTab, onSearch }) => {
                   type="text"
                   value={searchData.origin}
                   onChange={(e) => handleInputChange('origin', e.target.value)}
-                  placeholder="Select place of origin"
+                  placeholder={placeholders.origin}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-800"
                 />
               </div>
@@ -423,7 +443,7 @@ const SearchSection = ({ activeTab, onSearch }) => {
                   type="text"
                   value={searchData.destination}
                   onChange={(e) => handleInputChange('destination', e.target.value)}
-                  placeholder="Select destination"
+                  placeholder={placeholders.destination}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-800"
                 />
               </div>
