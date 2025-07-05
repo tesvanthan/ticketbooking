@@ -1,14 +1,24 @@
 import requests
 import unittest
 import json
+import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import re
+
+# Load environment variables from frontend/.env
+load_dotenv('/app/frontend/.env')
 
 class BusTicketAPITest(unittest.TestCase):
     """Test suite for BusTicket API endpoints"""
     
     def setUp(self):
         """Set up test environment before each test"""
-        self.base_url = "http://localhost:8001/api"
+        # Get the backend URL from environment variables
+        backend_url = os.getenv('REACT_APP_BACKEND_URL', 'https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com')
+        self.base_url = f"{backend_url}/api"
+        print(f"Using API base URL: {self.base_url}")
+        
         self.test_user = {
             "email": f"test_user_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com",
             "password": "Test123!",
