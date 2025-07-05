@@ -108,10 +108,12 @@ fi
 
 # Test 8: Booking Creation (with auth)
 echo -n "8. Booking Creation: "
+# Use a random seat to avoid conflicts
+random_seat="${RANDOM}A"
 booking_response=$(curl -s -X POST "${BACKEND_URL}/api/bookings" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" \
-    -d "{\"route_id\":\"${route_id}\",\"selected_seats\":[\"1A\"],\"passenger_details\":[{\"firstName\":\"Test\",\"lastName\":\"User\",\"email\":\"${email}\",\"phone\":\"1234567890\"}],\"date\":\"${tomorrow}\"}")
+    -d "{\"route_id\":\"${route_id}\",\"selected_seats\":[\"${random_seat}\"],\"passenger_details\":[{\"firstName\":\"Test\",\"lastName\":\"User\",\"email\":\"${email}\",\"phone\":\"1234567890\"}],\"date\":\"${tomorrow}\"}")
 
 if [[ $booking_response == *"booking_reference"* ]]; then
     echo -e "${GREEN}✓ PASS${NC}"
