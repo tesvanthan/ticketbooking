@@ -260,7 +260,7 @@ async def insert_sample_vehicles():
 # Initialize FastAPI app
 app = FastAPI(
     title="BusTicket API",
-    description="Enhanced Bus Booking Platform API",
+    description="Enhanced Bus Booking Platform API with Smart Management",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -273,6 +273,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include management router
+try:
+    from management_apis import management_router
+    app.include_router(management_router)
+    logger.info("Management APIs loaded successfully")
+except ImportError as e:
+    logger.warning(f"Could not load management APIs: {e}")
 
 # Health check endpoint
 @app.get("/api/")
