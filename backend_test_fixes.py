@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import re
+import time
 
 # Load environment variables from frontend/.env
 load_dotenv('/app/frontend/.env')
@@ -20,8 +21,9 @@ class BusTicketAPIFixesTest(unittest.TestCase):
         print(f"Using API base URL: {self.base_url}")
         
         # Create a test user for authentication
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         self.test_user = {
-            "email": f"test_user_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com",
+            "email": f"test_user_{timestamp}@example.com",
             "password": "Test123!",
             "first_name": "Test",
             "last_name": "User",
@@ -45,6 +47,9 @@ class BusTicketAPIFixesTest(unittest.TestCase):
         )
         self.assertEqual(login_response.status_code, 200)
         self.token = login_response.json()["access_token"]
+        
+        # Add a small delay to ensure all setup is complete
+        time.sleep(1)
         
     def test_01_upcoming_bookings(self):
         """Test the fixed upcoming bookings endpoint"""
