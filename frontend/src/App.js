@@ -58,6 +58,8 @@ import { ManagementDashboard } from './ManagementDashboard';
 import { UserProfile } from './UserProfile';
 import { AffiliateProgram } from './AffiliateProgram';
 import { TicketManagement } from './TicketManagement';
+import { PaymentManagement } from './PaymentManagement';
+import { AdminManagement } from './AdminManagement';
 
 // Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
