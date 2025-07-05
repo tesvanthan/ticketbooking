@@ -28,24 +28,34 @@ import {
 } from 'lucide-react';
 
 // Context for authentication and global state
-const AuthContext = createContext(null);
+const AuthContext = createContext({
+  user: null,
+  token: null,
+  login: () => {},
+  register: () => {},
+  logout: () => {},
+  loading: false
+});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (token) {
-      fetchUserProfile();
+    // Check for existing token on mount
+    const savedToken = localStorage.getItem('token');
+    if (savedToken) {
+      setToken(savedToken);
+      fetchUserProfile(savedToken);
     }
-  }, [token]);
+  }, []);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (authToken) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken || token}`
         }
       });
       if (response.ok) {
@@ -75,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         const data = await response.json();
         setToken(data.access_token);
         localStorage.setItem('token', data.access_token);
-        await fetchUserProfile();
+        await fetchUserProfile(data.access_token);
         return { success: true };
       } else {
         const error = await response.json();
@@ -83,7 +93,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Network error - Please check your connection' };
     } finally {
       setLoading(false);
     }
@@ -109,7 +119,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Network error - Please check your connection' };
     } finally {
       setLoading(false);
     }
@@ -121,8 +131,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const value = {
+    user,
+    token,
+    login,
+    register,
+    logout,
+    loading
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
