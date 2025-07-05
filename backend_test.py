@@ -26,7 +26,19 @@ class BusTicketAPITest(unittest.TestCase):
             "last_name": "User",
             "phone": "1234567890"
         }
+        
+        # Admin user for testing admin endpoints
+        self.admin_user = {
+            "email": f"admin_user_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com",
+            "password": "Admin123!",
+            "first_name": "Admin",
+            "last_name": "User",
+            "phone": "9876543210"
+        }
+        
         self.token = None
+        self.admin_token = None
+        self.user_id = None
         
     def test_01_health_check(self):
         """Test API health check endpoint"""
