@@ -451,11 +451,6 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
       setError('');
     }
   }, [searchResults]);
-      setError('Network error - Please check your connection and try again');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
