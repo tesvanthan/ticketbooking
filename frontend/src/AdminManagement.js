@@ -577,7 +577,7 @@ export const AdminManagement = () => {
             )}
             {activeTab === 'seats' && (
               <div className="text-center py-16">
-                <Seat className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <Square className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Seat Management</h3>
                 <p className="text-gray-600">Configure seat layouts and availability</p>
               </div>
