@@ -432,14 +432,17 @@ const SearchSection = ({ activeTab, onSearch }) => {
                 />
               </div>
               {activeSuggestion === 'origin' && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 mt-1 max-h-60 overflow-y-auto">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={index}
                       onClick={() => selectSuggestion(suggestion)}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full text-left px-4 py-3 hover:bg-orange-50 text-gray-800 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0 transition-colors"
                     >
-                      {suggestion}
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 text-gray-400 mr-2" />
+                        {suggestion}
+                      </div>
                     </button>
                   ))}
                 </div>
