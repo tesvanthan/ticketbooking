@@ -137,6 +137,14 @@ const Header = ({ activeTab, setActiveTab }) => {
                         <BookOpen className="w-4 h-4 inline mr-2" />
                         My Bookings
                       </Link>
+                      <Link
+                        to="/management"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Cog className="w-4 h-4 inline mr-2" />
+                        Management
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
