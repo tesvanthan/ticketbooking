@@ -459,6 +459,9 @@ export const SearchResults = ({ searchData, onSelectRoute }) => {
     setError('');
     
     try {
+      console.log('Searching with data:', searchData);
+      console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
+      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
         method: 'POST',
         headers: {
@@ -467,14 +470,21 @@ export const SearchResults = ({ searchData, onSelectRoute }) => {
         body: JSON.stringify(searchData),
       });
 
+      console.log('Search response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Search results:', data);
         setResults(data);
+        setError('');
       } else {
-        setError('Failed to search routes');
+        const errorText = await response.text();
+        console.error('Search failed:', errorText);
+        setError(`Search failed: ${response.status}`);
       }
     } catch (error) {
-      setError('Network error occurred');
+      console.error('Network error during search:', error);
+      setError('Network error - Please check your connection and try again');
     } finally {
       setLoading(false);
     }
@@ -493,10 +503,10 @@ export const SearchResults = ({ searchData, onSelectRoute }) => {
     return (
       <div className="text-center py-16">
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-600 mb-4">{error}</p>
         <button 
           onClick={performSearch}
-          className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+          className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
         >
           Try Again
         </button>
@@ -508,7 +518,13 @@ export const SearchResults = ({ searchData, onSelectRoute }) => {
     return (
       <div className="text-center py-16">
         <Bus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">No routes found for your search criteria</p>
+        <p className="text-gray-600 mb-4">No routes found for your search criteria</p>
+        <button 
+          onClick={() => window.location.href = '/'}
+          className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+        >
+          Search Again
+        </button>
       </div>
     );
   }
