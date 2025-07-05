@@ -326,7 +326,7 @@ backend:
 
   - task: "Admin Management Core APIs"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"
@@ -338,6 +338,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Tested the fixed endpoints but they still return 500 errors. The error logs show an issue with ObjectId serialization: 'ObjectId' object is not iterable. The fix for ObjectId handling is not working correctly."
+      - working: true
+        agent: "testing"
+        comment: "Tested the updated endpoints with jsonable_encoder and custom_encoder={ObjectId: str}. The admin/users, admin/routes, and admin/buses endpoints now work correctly. ObjectId serialization is working properly."
 
   - task: "Booking Flow Seat Selection"
     implemented: true
