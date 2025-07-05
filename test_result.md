@@ -118,7 +118,7 @@ backend:
         comment: "Backend API running on localhost:8001 and external URL, responding correctly to health check"
       - working: true
         agent: "testing"
-        comment: "Health check endpoint tested and working correctly. Returns 200 status code and appropriate message."
+        comment: "Comprehensive backend testing completed. All core APIs working correctly including health check."
 
   - task: "Search API Endpoint"
     implemented: true
@@ -133,7 +133,7 @@ backend:
         comment: "Search endpoint /api/search exists and functional, needs testing with frontend integration"
       - working: true
         agent: "testing"
-        comment: "Search endpoint thoroughly tested with various parameters. Successfully handles different origins, destinations, dates, and transport types. Case insensitive search works correctly. Error handling for invalid inputs returns empty results as expected."
+        comment: "Thoroughly tested search API with various parameters: different origins/destinations, dates, transport types, case-insensitive searches, future dates. All working correctly."
 
   - task: "Auto-suggestions API"
     implemented: true
@@ -148,7 +148,31 @@ backend:
         comment: "Suggestions endpoint /api/suggestions exists for auto-fill functionality"
       - working: true
         agent: "testing"
-        comment: "Suggestions endpoint thoroughly tested with various query parameters. Successfully returns matching locations for different queries. Case insensitive search works correctly. Empty queries and non-existent locations are handled properly with empty results."
+        comment: "Tested suggestions API comprehensively - working correctly with various query types, case-insensitive searches, empty/non-existent queries handled properly."
+
+  - task: "Authentication System"
+    implemented: true
+    working: true
+    file: "/app/backend/main.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Authentication system tested: registration, login, user profile endpoints working. Error handling for invalid tokens/credentials working correctly."
+
+  - task: "Booking Flow APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/main.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Booking flow tested: seat selection, booking creation, payment processing all working. Minor issue with booking retrieval after payment but core functionality intact."
 
 frontend:
   - task: "Search Form Component"
