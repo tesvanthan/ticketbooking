@@ -558,63 +558,6 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
     </div>
   );
 };
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-gray-800">{route.departure_time}</div>
-                    <div className="text-sm text-gray-600">{route.origin}</div>
-                  </div>
-                  <div className="flex-1 flex items-center">
-                    <div className="h-px bg-gray-300 flex-1"></div>
-                    <div className="mx-4 text-sm text-gray-600">{route.duration}</div>
-                    <div className="h-px bg-gray-300 flex-1"></div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-gray-800">{route.arrival_time}</div>
-                    <div className="text-sm text-gray-600">{route.destination}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-6 text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <Bus className="w-4 h-4 mr-1" />
-                    {route.company}
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-4 h-4 mr-1" />
-                    {route.available_seats} seats available
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {route.amenities.slice(0, 3).map((amenity, index) => (
-                      <span key={index} className="bg-gray-100 px-2 py-1 rounded text-xs">
-                        {amenity}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="ml-6 text-right">
-                <div className="text-2xl font-bold text-orange-500">${route.price}</div>
-                <div className="text-sm text-gray-600 mb-4">per person</div>
-                <button
-                  onClick={() => onSelectRoute(route)}
-                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  Select Seats
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // Seat Selection Component
 export const SeatSelection = ({ route, searchData, onConfirmBooking }) => {
