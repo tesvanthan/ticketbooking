@@ -584,56 +584,125 @@ const FeaturesSection = () => {
 
 // Popular Routes Component (same as before)
 const PopularRoutes = () => {
-  const routes = [
-    {
-      id: 1,
-      title: 'BUS FROM PHNOM PENH TO SIHANOUKVILLE',
-      description: 'Everybody knows about Sihanoukville. This is one of the most popular destinations in Cambodia because of its beautiful beaches and wonderful weather.',
-      image: 'https://images.unsplash.com/photo-1655793488799-1ffba5b22cbd',
-      price: '$12',
-      duration: '4h 30m'
-    },
-    {
-      id: 2,
-      title: 'BUS FROM PHNOM PENH TO SIEM REAP',
-      description: 'Exploring Siem Reap gives you a unique glimpse into Cambodia\'s history and culture. Visit some of the most famous temples in the world.',
-      image: 'https://images.unsplash.com/photo-1549159939-085440a06624',
-      price: '$15',
-      duration: '5h 45m'
-    },
-    {
-      id: 3,
-      title: 'BUS FROM SIHANOUKVILLE TO PHNOM PENH',
-      description: 'Phnom Penh is the capital of Cambodia, and is situated where the three rivers meet: the Mekong River, Bassac, and Tonle Sap.',
-      image: 'https://images.unsplash.com/photo-1566559631133-969041fc5583',
-      price: '$12',
-      duration: '4h 30m'
-    },
-    {
-      id: 4,
-      title: 'BUS FROM PHNOM PENH TO KAMPOT',
-      description: 'Kampot is the place to visit in Cambodia if you are hungry for some adventures. It is also ideal for those who want to enjoy the French colonial architecture.',
-      image: 'https://images.unsplash.com/photo-1549415714-23c875946516',
-      price: '$8',
-      duration: '3h 15m'
-    },
-    {
-      id: 5,
-      title: 'BUS FROM SIEM REAP TO PHNOM PENH',
-      description: 'Phnom Penh is the capital of Cambodia, and is situated where the three rivers meet: the Mekong River, Bassac, and Tonle Sap.',
-      image: 'https://images.unsplash.com/photo-1662074442814-351f09894a05',
-      price: '$15',
-      duration: '5h 45m'
-    },
-    {
-      id: 6,
-      title: 'BUS FROM PHNOM PENH TO BATTAMBANG',
-      description: 'If you want to see another side of Cambodia, visit Battambang. This city is the second largest in the country and is definitely worth visiting.',
-      image: 'https://images.unsplash.com/photo-1506721681159-78aeaf19a760',
-      price: '$10',
-      duration: '4h 00m'
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchPopularRoutes();
+  }, []);
+
+  const fetchPopularRoutes = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/popular-routes`);
+      if (response.ok) {
+        const data = await response.json();
+        setRoutes(data);
+      } else {
+        // Fallback to static data if API fails
+        setRoutes([
+          {
+            id: 1,
+            title: 'BUS FROM PHNOM PENH TO SIHANOUKVILLE',
+            description: 'Everybody knows about Sihanoukville. This is one of the most popular destinations in Cambodia because of its beautiful beaches and wonderful weather.',
+            image: 'https://images.unsplash.com/photo-1655793488799-1ffba5b22cbd',
+            price: '$12',
+            duration: '4h 30m',
+            origin: 'Phnom Penh',
+            destination: 'Sihanoukville',
+            popularity: 95
+          },
+          {
+            id: 2,
+            title: 'BUS FROM PHNOM PENH TO SIEM REAP',
+            description: 'Exploring Siem Reap gives you a unique glimpse into Cambodia\'s history and culture. Visit some of the most famous temples in the world.',
+            image: 'https://images.unsplash.com/photo-1549159939-085440a06624',
+            price: '$15',
+            duration: '5h 45m',
+            origin: 'Phnom Penh',
+            destination: 'Siem Reap',
+            popularity: 92
+          },
+          {
+            id: 3,
+            title: 'BUS FROM SIHANOUKVILLE TO PHNOM PENH',
+            description: 'Phnom Penh is the capital of Cambodia, and is situated where the three rivers meet: the Mekong River, Bassac, and Tonle Sap.',
+            image: 'https://images.unsplash.com/photo-1566559631133-969041fc5583',
+            price: '$12',
+            duration: '4h 30m',
+            origin: 'Sihanoukville',
+            destination: 'Phnom Penh',
+            popularity: 88
+          },
+          {
+            id: 4,
+            title: 'BUS FROM PHNOM PENH TO KAMPOT',
+            description: 'Kampot is the place to visit in Cambodia if you are hungry for some adventures. It is also ideal for those who want to enjoy the French colonial architecture.',
+            image: 'https://images.unsplash.com/photo-1549415714-23c875946516',
+            price: '$8',
+            duration: '3h 15m',
+            origin: 'Phnom Penh',
+            destination: 'Kampot',
+            popularity: 82
+          },
+          {
+            id: 5,
+            title: 'BUS FROM SIEM REAP TO PHNOM PENH',
+            description: 'Phnom Penh is the capital of Cambodia, and is situated where the three rivers meet: the Mekong River, Bassac, and Tonle Sap.',
+            image: 'https://images.unsplash.com/photo-1662074442814-351f09894a05',
+            price: '$15',
+            duration: '5h 45m',
+            origin: 'Siem Reap',
+            destination: 'Phnom Penh',
+            popularity: 90
+          },
+          {
+            id: 6,
+            title: 'BUS FROM PHNOM PENH TO BATTAMBANG',
+            description: 'If you want to see another side of Cambodia, visit Battambang. This city is the second largest in the country and is definitely worth visiting.',
+            image: 'https://images.unsplash.com/photo-1506721681159-78aeaf19a760',
+            price: '$10',
+            duration: '4h 00m',
+            origin: 'Phnom Penh',
+            destination: 'Battambang',
+            popularity: 75
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching popular routes:', error);
+      // Use fallback data
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleQuickBook = (route) => {
+    // Auto-fill search form and redirect
+    const searchData = {
+      origin: route.origin,
+      destination: route.destination,
+      date: new Date().toISOString().split('T')[0], // Today's date
+      passengers: 1,
+      transport_type: 'bus'
+    };
+    
+    // Navigate to search with pre-filled data
+    navigate('/', { state: { prefilledSearch: searchData } });
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+            <span className="ml-2 text-gray-600">Loading popular routes...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-white">
