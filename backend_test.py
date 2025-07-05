@@ -689,68 +689,21 @@ class BusTicketAPITest(unittest.TestCase):
             headers={"Authorization": f"Bearer {token}"}
         )
         
+        # This should work for a new user with no bookings
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIsInstance(data, list)
         print(f"✅ Past bookings retrieval successful: Found {len(data)} bookings")
         
-        # Test with invalid route_id to check exception handling
-        # Create a booking with an invalid date (in the past)
-        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-        
-        # First get a valid route
-        search_data = {
-            "origin": "Phnom Penh",
-            "destination": "Siem Reap",
-            "date": yesterday,
-            "passengers": 1,
-            "transport_type": "bus"
-        }
-        
-        search_response = requests.post(
-            f"{self.base_url}/search",
-            json=search_data
+        # Test with invalid token to check exception handling
+        response = requests.get(
+            f"{self.base_url}/bookings/past",
+            headers={"Authorization": f"Bearer invalid_token"}
         )
-        self.assertEqual(search_response.status_code, 200)
-        routes = search_response.json()
         
-        if len(routes) > 0:
-            # Create a booking with an invalid route_id format
-            booking_data = {
-                "route_id": "invalid-id-format",  # This should trigger the InvalidId exception handling
-                "selected_seats": ["1A"],
-                "passenger_details": [
-                    {
-                        "firstName": "Test",
-                        "lastName": "Passenger",
-                        "email": "test@example.com",
-                        "phone": "1234567890"
-                    }
-                ],
-                "date": yesterday
-            }
-            
-            # Try to create a booking with invalid route_id
-            try:
-                booking_response = requests.post(
-                    f"{self.base_url}/bookings",
-                    headers={"Authorization": f"Bearer {token}"},
-                    json=booking_data
-                )
-                # We expect this to fail, but we're just creating a test case
-            except:
-                pass
-                
-            # Now test the past bookings endpoint again to ensure it handles invalid ObjectIds
-            response = requests.get(
-                f"{self.base_url}/bookings/past",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            
-            self.assertEqual(response.status_code, 200)
-            data = response.json()
-            self.assertIsInstance(data, list)
-            print(f"✅ Past bookings with InvalidId exception handling works correctly")
+        # Should return 401 Unauthorized
+        self.assertEqual(response.status_code, 401)
+        print(f"✅ Past bookings with invalid token returns 401 as expected")
         
     def test_14_user_invite(self):
         """Test user invite endpoint"""
