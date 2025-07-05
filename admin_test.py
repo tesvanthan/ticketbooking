@@ -31,6 +31,9 @@ class AdminEndpointsTest(unittest.TestCase):
         
     def test_01_register_and_login(self):
         """Register and login admin user"""
+        # Generate a unique email for this test
+        self.admin_user["email"] = f"admin_user_{datetime.now().strftime('%Y%m%d%H%M%S%f')}@example.com"
+        
         # Register admin user
         register_response = requests.post(
             f"{self.base_url}/auth/register",
