@@ -968,7 +968,8 @@ const BookingPage = () => {
         setBookingData(data);
         setCurrentStep('payment');
       } else {
-        alert('Failed to create booking');
+        const errorData = await response.json();
+        alert(`Failed to create booking: ${errorData.detail || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error creating booking:', error);
