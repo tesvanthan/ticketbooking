@@ -575,27 +575,42 @@ async def get_user_bookings(current_user: dict = Depends(get_current_user)):
 @app.get("/api/bookings/{booking_id}")
 async def get_booking_details(booking_id: str, current_user: dict = Depends(get_current_user)):
     """Get booking details"""
-    booking = await db.bookings.find_one({
-        "_id": ObjectId(booking_id),
-        "user_id": str(current_user["_id"])
-    })
-    
-    if not booking:
-        raise HTTPException(status_code=404, detail="Booking not found")
-    
-    booking["id"] = str(booking["_id"])
-    
-    # Get route details
-    route_parts = booking["route_id"].split("-")
-    route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
-    if route:
-        booking["route_details"] = {
-            "origin": route["origin"],
-            "destination": route["destination"],
-            "duration": route["duration"]
-        }
-    
-    return booking
+    try:
+        booking = await db.bookings.find_one({
+            "_id": ObjectId(booking_id),
+            "user_id": str(current_user["_id"])
+        })
+        
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        booking["id"] = str(booking["_id"])
+        
+        # Get route details safely
+        try:
+            route_parts = booking["route_id"].split("-")
+            if route_parts and len(route_parts) > 0:
+                route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
+                if route:
+                    booking["route_details"] = {
+                        "origin": route["origin"],
+                        "destination": route["destination"],
+                        "duration": route["duration"]
+                    }
+        except Exception as e:
+            logger.warning(f"Could not fetch route details for booking {booking_id}: {e}")
+            booking["route_details"] = {
+                "origin": "Unknown",
+                "destination": "Unknown",
+                "duration": "Unknown"
+            }
+        
+        return booking
+    except ObjectId.InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid booking ID")
+    except Exception as e:
+        logger.error(f"Error fetching booking details: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch booking details")
 
 # Payment endpoints
 @app.post("/api/payments/process")
