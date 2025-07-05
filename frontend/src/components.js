@@ -443,45 +443,14 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 };
 
 // Search Results Component
-export const SearchResults = ({ searchData, onSelectRoute }) => {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+export const SearchResults = ({ searchData, searchResults = [], loading = false, onSelectRoute }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (searchData) {
-      performSearch();
+    if (searchResults.length > 0) {
+      setError('');
     }
-  }, [searchData]);
-
-  const performSearch = async () => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      console.log('Searching with data:', searchData);
-      console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
-      
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(searchData),
-      });
-
-      console.log('Search response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Search results:', data);
-        setResults(data);
-        setError('');
-      } else {
-        const errorText = await response.text();
-        console.error('Search failed:', errorText);
-        setError(`Search failed: ${response.status}`);
-      }
+  }, [searchResults]);
     } catch (error) {
       console.error('Network error during search:', error);
       setError('Network error - Please check your connection and try again');
