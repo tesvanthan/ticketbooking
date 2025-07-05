@@ -310,37 +310,46 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "User profile upcoming/past bookings APIs return 500 errors. This is a critical issue for user profile functionality."
+      - working: false
+        agent: "testing"
+        comment: "Tested the fixed endpoints but they still return 500 errors. The error logs show an issue with ObjectId serialization: 'ObjectId' object is not iterable. The fix for route_id ObjectId conversion is not working correctly."
 
   - task: "Admin Management Core APIs"
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "Admin management APIs (users, routes, buses) return 500 errors. Only stats API works correctly."
+      - working: false
+        agent: "testing"
+        comment: "Tested the fixed endpoints but they still return 500 errors. The error logs show an issue with ObjectId serialization: 'ObjectId' object is not iterable. The fix for ObjectId handling is not working correctly."
 
   - task: "Booking Flow Seat Selection"
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "Complete booking flow has issues with seat selection, returning 'Some seats are already booked' error."
+      - working: false
+        agent: "testing"
+        comment: "Tested the seat selection and booking flow. The seat layout API works correctly, but the booking creation still returns 'Some seats are already booked' error even for seats that should be available."
 
   - task: "Bulk Operations"
     implemented: true
