@@ -188,6 +188,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "User credit endpoint works correctly, but upcoming/past bookings endpoints return 500 errors. User invite, profile update, and password change endpoints work correctly."
+      - working: false
+        agent: "testing"
+        comment: "Confirmed that user credit, invite, and profile update APIs work correctly, but upcoming/past bookings APIs still return 500 errors. The issue is likely in the date handling or database queries for these endpoints."
 
   - task: "Affiliate Program"
     implemented: true
