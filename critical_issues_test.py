@@ -614,10 +614,20 @@ class CriticalIssuesTest(unittest.TestCase):
         for seat in seats_data.get("seats", []):
             if seat.get("status") == "available":
                 available_seats.append(seat.get("id"))
-                break
+                if len(available_seats) >= 2:  # Get at least 2 seats to avoid conflicts
+                    break
         
         if not available_seats:
             self.fail("No available seats found for testing booking flow")
+            
+        # Use a different seat for each test to avoid conflicts
+        import random
+        if len(available_seats) > 1:
+            selected_seat = random.choice(available_seats)
+        else:
+            selected_seat = available_seats[0]
+            
+        print(f"Found available seat for testing: {selected_seat}")
         
         print(f"Found available seat for testing: {available_seats[0]}")
         
