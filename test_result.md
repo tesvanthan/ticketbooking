@@ -304,7 +304,43 @@ backend:
         comment: "User reported that Affiliate management dashboard is not yet added and needs to be enhanced with best good feature management."
       - working: true
         agent: "testing"
-        comment: "Affiliate management APIs are fully implemented and working correctly. All endpoints (/api/affiliate/status, /api/affiliate/register, /api/affiliate/stats, /api/affiliate/activity) return 200 responses with the expected data."
+        comment: "Testing confirmed all affiliate management endpoints are fully implemented and working correctly."
+
+  - task: "User Profile Bookings"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "User profile upcoming/past bookings APIs return 500 errors. This is a critical issue for user profile functionality."
+
+  - task: "Admin Management Core APIs"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Admin management APIs (users, routes, buses) return 500 errors. Only stats API works correctly."
+
+  - task: "Booking Flow Seat Selection"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Complete booking flow has issues with seat selection, returning 'Some seats are already booked' error."
 
   - task: "Bulk Operations"
     implemented: true
