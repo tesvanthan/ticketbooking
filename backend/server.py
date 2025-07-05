@@ -40,7 +40,7 @@ db = client.busticket_db
 # Security
 security = HTTPBearer()
 
-# Pydantic Models
+# Pydantic Models (keeping existing models)
 class UserBase(BaseModel):
     email: EmailStr
     first_name: str
