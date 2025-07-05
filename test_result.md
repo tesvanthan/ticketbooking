@@ -204,20 +204,17 @@ backend:
         agent: "testing"
         comment: "The complete booking flow has issues with seat selection. The API returns 'Some seats are already booked' error even for seats that should be available. This suggests a problem with the seat availability tracking or database queries."
 
-  - task: "Ticket Management"
+  - task: "Payment Flow"
     implemented: true
-    working: false
-    file: "/app/backend/main.py"
-    stuck_count: 1
-    priority: "medium"
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
     needs_retesting: false
     status_history:
-      - working: false
+      - working: true
         agent: "testing"
-        comment: "Ticket management endpoints (download, send) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
-      - working: false
-        agent: "testing"
-        comment: "Ticket download endpoint works correctly, but ticket send endpoint returns a 500 error when creating a booking."
+        comment: "Complete booking to payment flow tested and working correctly. Both credit card and PayPal payment methods are functioning properly."
 
   - task: "Affiliate Program"
     implemented: true
