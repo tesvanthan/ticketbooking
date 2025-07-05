@@ -733,9 +733,26 @@ const PopularRoutes = () => {
               <div className="p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-2">{route.title}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">{route.description}</p>
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition-colors">
-                  View Trip
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleQuickBook(route)}
+                    className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors font-semibold"
+                  >
+                    Quick Book
+                  </button>
+                  <button
+                    onClick={() => navigate('/', { state: { prefilledSearch: { origin: route.origin, destination: route.destination } } })}
+                    className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    View Details
+                  </button>
+                </div>
+                {route.popularity && (
+                  <div className="mt-2 flex items-center">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-xs text-gray-600 ml-1">{route.popularity}% popularity</span>
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
