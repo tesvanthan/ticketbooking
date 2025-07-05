@@ -737,6 +737,249 @@ async def get_route_suggestions(q: str = ""):
     suggestions = list(set(origins + destinations))
     return suggestions[:10]
 
+# User Profile endpoints
+@app.get("/api/user/credit")
+async def get_user_credit(current_user: dict = Depends(get_current_user)):
+    """Get user credit balance and transactions"""
+    # Sample credit data - in real app, this would come from database
+    credit_data = {
+        "balance": 25.50,
+        "transactions": [
+            {"description": "Booking Credit Refund", "amount": 15.00, "date": "2025-07-03"},
+            {"description": "Referral Bonus", "amount": 10.00, "date": "2025-07-01"},
+            {"description": "Welcome Bonus", "amount": 5.00, "date": "2025-06-25"},
+            {"description": "Booking Payment", "amount": -4.50, "date": "2025-06-20"}
+        ]
+    }
+    return credit_data
+
+@app.get("/api/bookings/upcoming")
+async def get_upcoming_bookings(current_user: dict = Depends(get_current_user)):
+    """Get user's upcoming bookings"""
+    from datetime import datetime
+    today = datetime.utcnow()
+    
+    bookings = await db.bookings.find({
+        "user_id": str(current_user["_id"]),
+        "date": {"$gte": today.strftime("%Y-%m-%d")},
+        "status": {"$in": ["confirmed", "paid"]}
+    }).sort("date", 1).to_list(length=50)
+    
+    for booking in bookings:
+        booking["id"] = str(booking["_id"])
+        # Get route details
+        if "route_id" in booking:
+            route_parts = booking["route_id"].split("-")
+            if len(route_parts) > 0:
+                try:
+                    route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
+                    if route:
+                        booking["route_details"] = {
+                            "origin": route["origin"],
+                            "destination": route["destination"],
+                            "duration": route["duration"]
+                        }
+                except:
+                    pass
+    
+    return bookings
+
+@app.get("/api/bookings/past")
+async def get_past_bookings(current_user: dict = Depends(get_current_user)):
+    """Get user's past bookings"""
+    from datetime import datetime
+    today = datetime.utcnow()
+    
+    bookings = await db.bookings.find({
+        "user_id": str(current_user["_id"]),
+        "date": {"$lt": today.strftime("%Y-%m-%d")}
+    }).sort("date", -1).to_list(length=50)
+    
+    for booking in bookings:
+        booking["id"] = str(booking["_id"])
+        # Get route details
+        if "route_id" in booking:
+            route_parts = booking["route_id"].split("-")
+            if len(route_parts) > 0:
+                try:
+                    route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
+                    if route:
+                        booking["route_details"] = {
+                            "origin": route["origin"],
+                            "destination": route["destination"],
+                            "duration": route["duration"]
+                        }
+                except:
+                    pass
+    
+    return bookings
+
+@app.post("/api/user/invite")
+async def send_invite(invite_data: dict, current_user: dict = Depends(get_current_user)):
+    """Send invitation to friends"""
+    # In real implementation, this would send actual emails
+    invite_record = {
+        "inviter_id": str(current_user["_id"]),
+        "email": invite_data["email"],
+        "invite_code": invite_data["invite_code"],
+        "status": "sent",
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.invites.insert_one(invite_record)
+    return {"message": "Invite sent successfully"}
+
+@app.put("/api/user/profile")
+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update user profile"""
+    await db.users.update_one(
+        {"_id": current_user["_id"]},
+        {"$set": {
+            "first_name": profile_data["first_name"],
+            "last_name": profile_data["last_name"],
+            "email": profile_data["email"],
+            "phone": profile_data["phone"],
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    return {"message": "Profile updated successfully"}
+
+@app.put("/api/user/change-password")
+async def change_password(password_data: dict, current_user: dict = Depends(get_current_user)):
+    """Change user password"""
+    if not verify_password(password_data["current_password"], current_user["password"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    new_password_hash = get_password_hash(password_data["new_password"])
+    await db.users.update_one(
+        {"_id": current_user["_id"]},
+        {"$set": {
+            "password": new_password_hash,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    return {"message": "Password changed successfully"}
+
+# Affiliate Program endpoints
+@app.get("/api/affiliate/status")
+async def get_affiliate_status(current_user: dict = Depends(get_current_user)):
+    """Check if user is an affiliate"""
+    affiliate = await db.affiliates.find_one({"user_id": str(current_user["_id"])})
+    
+    if affiliate:
+        return {
+            "isAffiliate": True,
+            "affiliateData": {
+                "affiliateCode": affiliate["affiliate_code"],
+                "status": affiliate["status"],
+                "createdAt": affiliate["created_at"]
+            }
+        }
+    else:
+        return {"isAffiliate": False, "affiliateData": None}
+
+@app.post("/api/affiliate/register")
+async def register_affiliate(affiliate_data: dict, current_user: dict = Depends(get_current_user)):
+    """Register as affiliate"""
+    # Generate unique affiliate code
+    affiliate_code = f"BMB{str(current_user['_id'])[-6:].upper()}"
+    
+    affiliate_record = {
+        "user_id": str(current_user["_id"]),
+        "affiliate_code": affiliate_code,
+        "company_name": affiliate_data["companyName"],
+        "website": affiliate_data["website"],
+        "description": affiliate_data["description"],
+        "monthly_sales": affiliate_data["monthlySales"],
+        "marketing_channels": affiliate_data["marketingChannels"],
+        "status": "pending",
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.affiliates.insert_one(affiliate_record)
+    
+    return {
+        "affiliateCode": affiliate_code,
+        "status": "pending",
+        "message": "Affiliate application submitted successfully"
+    }
+
+@app.get("/api/affiliate/stats")
+async def get_affiliate_stats(current_user: dict = Depends(get_current_user)):
+    """Get affiliate statistics"""
+    # Sample stats - in real app, this would be calculated from actual data
+    stats = {
+        "totalEarnings": 1250.75,
+        "totalReferrals": 42,
+        "conversionRate": 3.2,
+        "monthlyEarnings": 285.50
+    }
+    return stats
+
+@app.get("/api/affiliate/activity")
+async def get_affiliate_activity(current_user: dict = Depends(get_current_user)):
+    """Get recent affiliate activity"""
+    # Sample activity data
+    activity = [
+        {"description": "New booking commission", "commission": 15.50, "date": "2025-07-04"},
+        {"description": "Referral signup bonus", "commission": 10.00, "date": "2025-07-03"},
+        {"description": "Booking commission", "commission": 8.25, "date": "2025-07-02"}
+    ]
+    return activity
+
+# Ticket Management endpoints
+@app.get("/api/tickets/download/{booking_id}")
+async def download_ticket(booking_id: str, current_user: dict = Depends(get_current_user)):
+    """Download ticket as PDF"""
+    try:
+        booking = await db.bookings.find_one({
+            "_id": ObjectId(booking_id),
+            "user_id": str(current_user["_id"])
+        })
+        
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # In real implementation, this would generate a PDF
+        # For now, return a placeholder response
+        return {"message": "PDF download would be generated here", "booking_id": booking_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid booking ID")
+
+@app.post("/api/tickets/send")
+async def send_ticket(send_data: dict, current_user: dict = Depends(get_current_user)):
+    """Send ticket via email or SMS"""
+    try:
+        booking = await db.bookings.find_one({
+            "_id": ObjectId(send_data["booking_id"]),
+            "user_id": str(current_user["_id"])
+        })
+        
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # In real implementation, this would send actual emails/SMS
+        send_record = {
+            "booking_id": send_data["booking_id"],
+            "recipients": send_data["recipients"],
+            "method": send_data["method"],
+            "message": send_data.get("message", ""),
+            "sent_at": datetime.utcnow(),
+            "sent_by": str(current_user["_id"])
+        }
+        
+        await db.ticket_sends.insert_one(send_record)
+        return {"message": "Ticket sent successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid booking ID")
+
+# Enhanced search for different transport types
+@app.post("/api/search/{transport_type}")
+async def search_by_transport_type(transport_type: str, search: SearchRequest):
+    """Search for specific transport type"""
+    search.transport_type = transport_type
+    return await search_routes(search)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
