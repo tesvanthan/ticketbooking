@@ -451,8 +451,6 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
       setError('');
     }
   }, [searchResults]);
-    } catch (error) {
-      console.error('Network error during search:', error);
       setError('Network error - Please check your connection and try again');
     } finally {
       setLoading(false);
