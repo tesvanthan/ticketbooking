@@ -1169,12 +1169,16 @@ async def delete_bus(bus_id: str, current_user: dict = Depends(get_current_user)
 @app.get("/api/admin/routes")
 async def get_all_routes(current_user: dict = Depends(get_current_user)):
     """Get all routes for admin management"""
-    routes = await db.routes.find({}).to_list(length=1000)
-    
-    for route in routes:
-        route["id"] = str(route["_id"])
-    
-    return routes
+    try:
+        routes = await db.routes.find({}).to_list(length=1000)
+        
+        for route in routes:
+            route["id"] = str(route["_id"])
+        
+        return routes
+    except Exception as e:
+        logger.error(f"Error getting all routes: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/admin/routes")
 async def create_route(route_data: dict, current_user: dict = Depends(get_current_user)):
