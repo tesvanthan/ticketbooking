@@ -1096,7 +1096,12 @@ const BookingPage = () => {
               Back to Search
             </button>
           </div>
-          <SearchResults searchData={searchData} onSelectRoute={handleSelectRoute} />
+          <SearchResults 
+            searchData={searchData} 
+            searchResults={searchResults}
+            loading={loading}
+            onSelectRoute={handleSelectRoute} 
+          />
         </div>
       )}
 
