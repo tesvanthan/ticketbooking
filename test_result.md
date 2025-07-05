@@ -192,20 +192,17 @@ backend:
         agent: "testing"
         comment: "Confirmed that user credit, invite, and profile update APIs work correctly, but upcoming/past bookings APIs still return 500 errors. The issue is likely in the date handling or database queries for these endpoints."
 
-  - task: "Affiliate Program"
+  - task: "Complete Booking Flow"
     implemented: true
-    working: true
-    file: "/app/backend/main.py"
-    stuck_count: 0
-    priority: "medium"
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
-        comment: "Affiliate program endpoints (status, registration, stats, activity) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
-      - working: true
-        agent: "testing"
-        comment: "All affiliate program endpoints (status, registration, stats, activity) are now working correctly in server.py."
+        comment: "The complete booking flow has issues with seat selection. The API returns 'Some seats are already booked' error even for seats that should be available. This suggests a problem with the seat availability tracking or database queries."
 
   - task: "Ticket Management"
     implemented: true
