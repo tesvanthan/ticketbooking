@@ -1973,7 +1973,7 @@ def run_tests():
     test_suite.addTest(BusTicketAPITest('test_09_create_booking'))
     test_suite.addTest(BusTicketAPITest('test_10_get_user_bookings'))
     
-    # New User Profile Feature Tests
+    # User Profile Feature Tests
     test_suite.addTest(BusTicketAPITest('test_11_user_credit'))
     test_suite.addTest(BusTicketAPITest('test_12_upcoming_bookings'))
     test_suite.addTest(BusTicketAPITest('test_13_past_bookings'))
@@ -1993,6 +1993,20 @@ def run_tests():
     
     # Enhanced Search Tests
     test_suite.addTest(BusTicketAPITest('test_23_search_by_transport_type'))
+    
+    # Admin Management Tests
+    test_suite.addTest(BusTicketAPITest('test_24_admin_users'))
+    test_suite.addTest(BusTicketAPITest('test_25_admin_user_permissions'))
+    test_suite.addTest(BusTicketAPITest('test_26_admin_buses'))
+    test_suite.addTest(BusTicketAPITest('test_27_admin_routes'))
+    test_suite.addTest(BusTicketAPITest('test_28_admin_stats'))
+    
+    # Bulk Operations Tests
+    test_suite.addTest(BusTicketAPITest('test_29_admin_bulk_upload_buses'))
+    test_suite.addTest(BusTicketAPITest('test_30_admin_bulk_upload_routes'))
+    
+    # Enhanced Payment Tests
+    test_suite.addTest(BusTicketAPITest('test_31_enhanced_payment_methods'))
     
     runner = unittest.TextTestRunner(verbosity=2)
     return runner.run(test_suite)
