@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
@@ -33,13 +33,34 @@ import {
   ArrowRight, 
   ArrowLeft, 
   ChevronDown, 
-  ChevronRight 
+  ChevronRight,
+  User,
+  LogOut,
+  BookOpen,
+  Settings,
+  CreditCard as CardIcon,
+  BarChart3,
+  Loader2
 } from 'lucide-react';
 import './App.css';
+import { 
+  AuthProvider, 
+  useAuth, 
+  LoginModal, 
+  RegisterModal,
+  SearchResults,
+  SeatSelection,
+  Payment,
+  BookingConfirmation
+} from './components';
 
-// Enhanced Components
+// Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, logout } = useAuth();
 
   const tabs = [
     { id: 'bus', label: 'Bus', icon: Bus },
@@ -48,120 +69,225 @@ const Header = ({ activeTab, setActiveTab }) => {
     { id: 'ferry', label: 'Ferry', icon: Ship }
   ];
 
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
+  };
+
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center">
-              <Bus className="w-6 h-6 text-white" />
+    <>
+      <header className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-4">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center">
+                <Bus className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-800">BusTicket</span>
+            </Link>
+
+            {/* Navigation */}
+            <nav className="hidden lg:flex items-center space-x-8">
+              <Link to="/" className="text-gray-700 hover:text-orange-500 transition-colors">Home</Link>
+              <Link to="/routes" className="text-gray-700 hover:text-orange-500 transition-colors">Routes</Link>
+              {user && (
+                <Link to="/my-bookings" className="text-gray-700 hover:text-orange-500 transition-colors">My Bookings</Link>
+              )}
+              <Link to="/about" className="text-gray-700 hover:text-orange-500 transition-colors">About</Link>
+              <Link to="/contact" className="text-gray-700 hover:text-orange-500 transition-colors">Contact</Link>
+            </nav>
+
+            {/* Auth Section */}
+            <div className="hidden lg:flex items-center space-x-4">
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-orange-500 transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>{user.first_name}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <User className="w-4 h-4 inline mr-2" />
+                        Profile
+                      </Link>
+                      <Link
+                        to="/my-bookings"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <BookOpen className="w-4 h-4 inline mr-2" />
+                        My Bookings
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 inline mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => setShowLoginModal(true)}
+                    className="text-gray-700 hover:text-orange-500 transition-colors"
+                  >
+                    LOGIN
+                  </button>
+                  <button 
+                    onClick={() => setShowRegisterModal(true)}
+                    className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    REGISTER
+                  </button>
+                </>
+              )}
             </div>
-            <span className="text-xl font-bold text-gray-800">BusTicket</span>
-          </Link>
 
-          {/* Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-orange-500 transition-colors">Home</Link>
-            <Link to="/routes" className="text-gray-700 hover:text-orange-500 transition-colors">Routes</Link>
-            <Link to="/about" className="text-gray-700 hover:text-orange-500 transition-colors">About</Link>
-            <Link to="/contact" className="text-gray-700 hover:text-orange-500 transition-colors">Contact</Link>
-          </nav>
-
-          {/* Auth Buttons */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <button className="text-gray-700 hover:text-orange-500 transition-colors">LOGIN</button>
-            <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
-              REGISTER
+            {/* Mobile Menu Button */}
+            <button 
+              className="lg:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="lg:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Service Tabs */}
-        <div className="border-t border-gray-200 py-4">
-          <div className="flex flex-wrap gap-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                    activeTab === tab.id 
-                      ? 'bg-orange-500 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
+          {/* Service Tabs */}
+          <div className="border-t border-gray-200 py-4">
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      activeTab === tab.id 
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-200"
-          >
-            <div className="px-4 py-4 space-y-2">
-              <Link to="/" className="block py-2 text-gray-700 hover:text-orange-500">Home</Link>
-              <Link to="/routes" className="block py-2 text-gray-700 hover:text-orange-500">Routes</Link>
-              <Link to="/about" className="block py-2 text-gray-700 hover:text-orange-500">About</Link>
-              <Link to="/contact" className="block py-2 text-gray-700 hover:text-orange-500">Contact</Link>
-              <div className="flex space-x-4 pt-4">
-                <button className="text-gray-700 hover:text-orange-500">LOGIN</button>
-                <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-                  REGISTER
-                </button>
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden bg-white border-t border-gray-200"
+            >
+              <div className="px-4 py-4 space-y-2">
+                <Link to="/" className="block py-2 text-gray-700 hover:text-orange-500">Home</Link>
+                <Link to="/routes" className="block py-2 text-gray-700 hover:text-orange-500">Routes</Link>
+                {user && (
+                  <Link to="/my-bookings" className="block py-2 text-gray-700 hover:text-orange-500">My Bookings</Link>
+                )}
+                <Link to="/about" className="block py-2 text-gray-700 hover:text-orange-500">About</Link>
+                <Link to="/contact" className="block py-2 text-gray-700 hover:text-orange-500">Contact</Link>
+                
+                {user ? (
+                  <div className="pt-4 border-t border-gray-200">
+                    <div className="text-gray-600 mb-2">Hello, {user.first_name}!</div>
+                    <Link to="/profile" className="block py-2 text-gray-700 hover:text-orange-500">Profile</Link>
+                    <button onClick={handleLogout} className="block py-2 text-gray-700 hover:text-orange-500">Logout</button>
+                  </div>
+                ) : (
+                  <div className="flex space-x-4 pt-4">
+                    <button 
+                      onClick={() => setShowLoginModal(true)}
+                      className="text-gray-700 hover:text-orange-500"
+                    >
+                      LOGIN
+                    </button>
+                    <button 
+                      onClick={() => setShowRegisterModal(true)}
+                      className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                    >
+                      REGISTER
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Modals */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={() => {
+          setShowLoginModal(false);
+          setShowRegisterModal(true);
+        }}
+      />
+      <RegisterModal 
+        isOpen={showRegisterModal} 
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={() => {
+          setShowRegisterModal(false);
+          setShowLoginModal(true);
+        }}
+      />
+    </>
   );
 };
 
-const SearchSection = ({ activeTab }) => {
+// Enhanced Search Section with Real API Integration
+const SearchSection = ({ activeTab, onSearch }) => {
   const [searchData, setSearchData] = useState({
     origin: '',
     destination: '',
     date: '',
     passengers: 1
   });
-
   const [suggestions, setSuggestions] = useState([]);
   const [activeSuggestion, setActiveSuggestion] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const popularDestinations = [
-    'Phnom Penh', 'Siem Reap', 'Sihanoukville', 'Kampot', 'Kep',
-    'Battambang', 'Poipet', 'Banteay Meanchey', 'Svay Rieng'
-  ];
-
-  const handleInputChange = (field, value) => {
+  const handleInputChange = async (field, value) => {
     setSearchData(prev => ({ ...prev, [field]: value }));
     
     if (field === 'origin' || field === 'destination') {
-      const filtered = popularDestinations.filter(dest => 
-        dest.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered.slice(0, 5));
-      setActiveSuggestion(field);
+      if (value.length > 2) {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/suggestions?q=${value}`);
+          if (response.ok) {
+            const data = await response.json();
+            setSuggestions(data);
+            setActiveSuggestion(field);
+          }
+        } catch (error) {
+          console.error('Error fetching suggestions:', error);
+        }
+      } else {
+        setSuggestions([]);
+        setActiveSuggestion(null);
+      }
     }
   };
 
@@ -171,9 +297,20 @@ const SearchSection = ({ activeTab }) => {
     setActiveSuggestion(null);
   };
 
-  const handleSearch = () => {
-    console.log('Searching with:', searchData);
-    // Here you would typically make an API call
+  const handleSearch = async () => {
+    if (!searchData.origin || !searchData.destination || !searchData.date) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    const searchPayload = {
+      ...searchData,
+      transport_type: activeTab
+    };
+    
+    await onSearch(searchPayload);
+    setLoading(false);
   };
 
   return (
@@ -274,6 +411,7 @@ const SearchSection = ({ activeTab }) => {
                 <input
                   type="date"
                   value={searchData.date}
+                  min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => handleInputChange('date', e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-800"
                 />
@@ -300,10 +438,15 @@ const SearchSection = ({ activeTab }) => {
             {/* Search Button */}
             <button
               onClick={handleSearch}
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 h-12"
+              disabled={loading}
+              className="bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 h-12"
             >
-              <Search className="w-5 h-5" />
-              <span>Search Tickets</span>
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Search className="w-5 h-5" />
+              )}
+              <span>{loading ? 'Searching...' : 'Search Tickets'}</span>
             </button>
           </div>
         </motion.div>
@@ -312,6 +455,7 @@ const SearchSection = ({ activeTab }) => {
   );
 };
 
+// Features Section Component (same as before)
 const FeaturesSection = () => {
   const features = [
     { icon: Shield, title: 'Easy, Fast, Secured', description: 'Book your tickets quickly and securely' },
@@ -320,7 +464,7 @@ const FeaturesSection = () => {
     { icon: Headphones, title: 'Responsive Support Team', description: '24/7 customer support available' },
     { icon: Award, title: 'Book & Save Points for Rewards', description: 'Earn points with every booking' },
     { icon: Star, title: 'Review & Rate Operators', description: 'Help others with your experiences' },
-    { icon: CreditCard, title: 'Pay with VISA, Master Card & more', description: 'Multiple payment options' },
+    { icon: CardIcon, title: 'Pay with VISA, Master Card & more', description: 'Multiple payment options' },
     { icon: Navigation, title: 'Book Transportations & Activities in one place', description: 'Complete travel solutions' }
   ];
 
@@ -367,6 +511,7 @@ const FeaturesSection = () => {
   );
 };
 
+// Popular Routes Component (same as before)
 const PopularRoutes = () => {
   const routes = [
     {
@@ -460,6 +605,7 @@ const PopularRoutes = () => {
   );
 };
 
+// AI Features Section (same as before)
 const AIFeaturesSection = () => {
   const aiFeatures = [
     {
@@ -533,6 +679,7 @@ const AIFeaturesSection = () => {
   );
 };
 
+// Partners and Testimonials sections (same as before)
 const PartnersSection = () => {
   const partners = [
     'Partner 1', 'Partner 2', 'Partner 3', 'Partner 4', 'Partner 5', 'Partner 6',
@@ -676,30 +823,249 @@ const Footer = () => {
   );
 };
 
-const HomePage = () => {
+// My Bookings Page
+const MyBookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/bookings`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBookings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">My Bookings</h1>
+        
+        {bookings.length === 0 ? (
+          <div className="text-center py-16">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No bookings found</p>
+            <Link
+              to="/"
+              className="mt-4 inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600"
+            >
+              Book Your First Trip
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {bookings.map((booking) => (
+              <div key={booking.id} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {booking.route_details?.origin} → {booking.route_details?.destination}
+                    </h3>
+                    <p className="text-gray-600">Booking Reference: {booking.booking_reference}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      booking.status === 'paid' ? 'bg-green-100 text-green-800' :
+                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {booking.status.toUpperCase()}
+                    </div>
+                    <div className="text-xl font-bold text-orange-500 mt-2">
+                      ${booking.total_price}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                  <div>
+                    <span className="font-medium">Date:</span> {booking.date}
+                  </div>
+                  <div>
+                    <span className="font-medium">Seats:</span> {booking.seats.join(', ')}
+                  </div>
+                  <div>
+                    <span className="font-medium">Duration:</span> {booking.route_details?.duration}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Main Booking Page Component
+const BookingPage = () => {
+  const [currentStep, setCurrentStep] = useState('search');
+  const [searchData, setSearchData] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [bookingData, setBookingData] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
   const [activeTab, setActiveTab] = useState('bus');
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSearch = async (data) => {
+    setSearchData(data);
+    setCurrentStep('results');
+  };
+
+  const handleSelectRoute = (route) => {
+    if (!user) {
+      alert('Please login to continue booking');
+      return;
+    }
+    setSelectedRoute(route);
+    setCurrentStep('seats');
+  };
+
+  const handleConfirmBooking = async (bookingDetails) => {
+    try {
+      const { token } = useAuth();
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bookingDetails)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBookingData(data);
+        setCurrentStep('payment');
+      } else {
+        alert('Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert('Network error occurred');
+    }
+  };
+
+  const handlePaymentSuccess = (payment) => {
+    setPaymentData(payment);
+    setCurrentStep('confirmation');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-      <SearchSection activeTab={activeTab} />
-      <FeaturesSection />
-      <PopularRoutes />
-      <AIFeaturesSection />
-      <PartnersSection />
-      <TestimonialsSection />
+      
+      {currentStep === 'search' && (
+        <>
+          <SearchSection activeTab={activeTab} onSearch={handleSearch} />
+          <FeaturesSection />
+          <PopularRoutes />
+          <AIFeaturesSection />
+          <PartnersSection />
+          <TestimonialsSection />
+        </>
+      )}
+
+      {currentStep === 'results' && (
+        <div className="container mx-auto px-4">
+          <div className="py-8">
+            <button
+              onClick={() => setCurrentStep('search')}
+              className="flex items-center text-orange-500 hover:text-orange-600 mb-6"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Search
+            </button>
+          </div>
+          <SearchResults searchData={searchData} onSelectRoute={handleSelectRoute} />
+        </div>
+      )}
+
+      {currentStep === 'seats' && (
+        <div className="container mx-auto px-4">
+          <div className="py-8">
+            <button
+              onClick={() => setCurrentStep('results')}
+              className="flex items-center text-orange-500 hover:text-orange-600 mb-6"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Results
+            </button>
+          </div>
+          <SeatSelection 
+            route={selectedRoute} 
+            searchData={searchData} 
+            onConfirmBooking={handleConfirmBooking} 
+          />
+        </div>
+      )}
+
+      {currentStep === 'payment' && (
+        <div className="container mx-auto px-4">
+          <div className="py-8">
+            <button
+              onClick={() => setCurrentStep('seats')}
+              className="flex items-center text-orange-500 hover:text-orange-600 mb-6"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Seat Selection
+            </button>
+          </div>
+          <Payment bookingData={bookingData} onPaymentSuccess={handlePaymentSuccess} />
+        </div>
+      )}
+
+      {currentStep === 'confirmation' && (
+        <div className="container mx-auto px-4">
+          <BookingConfirmation paymentData={paymentData} bookingData={bookingData} />
+        </div>
+      )}
+
       <Footer />
     </div>
   );
 };
 
+// Main App Component
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<BookingPage />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/routes" element={<BookingPage />} />
+          <Route path="/about" element={<BookingPage />} />
+          <Route path="/contact" element={<BookingPage />} />
+          <Route path="/profile" element={<MyBookings />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
