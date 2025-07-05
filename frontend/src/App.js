@@ -996,7 +996,7 @@ const BookingPage = () => {
     setCurrentStep('results');
   };
 
-  const handleSelectRoute = (route) => {
+  const handleSelectRoute = async (route) => {
     if (!user) {
       alert('Please login to continue booking');
       return;
