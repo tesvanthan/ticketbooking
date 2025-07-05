@@ -260,15 +260,18 @@ backend:
 
   - task: "Seat Layout API"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
         comment: "User reported 'Failed to fetch seat layout' error. This is a critical issue for the booking flow."
+      - working: true
+        agent: "testing"
+        comment: "Seat layout API is working correctly. The API returns the expected data structure with seats and layout information. No 500 errors observed."
 
   - task: "Payment Method Selection"
     implemented: true
