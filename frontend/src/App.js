@@ -55,6 +55,9 @@ import {
   BookingConfirmation
 } from './components';
 import { ManagementDashboard } from './ManagementDashboard';
+import { UserProfile } from './UserProfile';
+import { AffiliateProgram } from './AffiliateProgram';
+import { TicketManagement } from './TicketManagement';
 
 // Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
