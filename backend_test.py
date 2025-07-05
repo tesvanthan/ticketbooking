@@ -52,11 +52,29 @@ class BusTicketAPITest(unittest.TestCase):
         
     def test_03_login_user(self):
         """Test user login"""
+        # Register a new user specifically for this test
+        test_email = f"login_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Login",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
         response = requests.post(
             f"{self.base_url}/auth/login",
             json={
-                "email": self.test_user["email"],
-                "password": self.test_user["password"]
+                "email": test_user["email"],
+                "password": test_user["password"]
             }
         )
         self.assertEqual(response.status_code, 200)
