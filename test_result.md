@@ -395,9 +395,15 @@ test_plan:
   current_focus:
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
+    - "Management Features"
+    - "Smart AI Features"
+    - "Payment System"
   stuck_tasks:
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
+    - "Management Features"
+    - "Smart AI Features"
+    - "Payment System"
     - "User Profile Features"
     - "Ticket Management"
     - "Admin Management APIs"
