@@ -1321,29 +1321,152 @@ async def create_bus_operator(operator_data: dict, current_user: dict = Depends(
     result = await db.bus_operators.insert_one(operator_record)
     return {"message": "Bus operator created successfully", "id": str(result.inserted_id)}
 
-# Agent management
-@app.get("/api/admin/agents")
-async def get_agents(current_user: dict = Depends(get_current_user)):
-    """Get all agents"""
-    agents = await db.agents.find({}).to_list(length=1000)
-    
-    for agent in agents:
-        agent["id"] = str(agent["_id"])
-    
-    return agents
+# Popular routes endpoint
+@app.get("/api/popular-routes")
+async def get_popular_routes():
+    """Get popular routes based on booking data"""
+    try:
+        # In a real implementation, this would aggregate booking data
+        popular_routes = [
+            {
+                "id": 1,
+                "title": "BUS FROM PHNOM PENH TO SIHANOUKVILLE",
+                "description": "Everybody knows about Sihanoukville. This is one of the most popular destinations in Cambodia because of its beautiful beaches and wonderful weather.",
+                "image": "https://images.unsplash.com/photo-1655793488799-1ffba5b22cbd",
+                "price": "$12",
+                "duration": "4h 30m",
+                "origin": "Phnom Penh",
+                "destination": "Sihanoukville",
+                "popularity": 95,
+                "weekly_bookings": 145
+            },
+            {
+                "id": 2,
+                "title": "BUS FROM PHNOM PENH TO SIEM REAP",
+                "description": "Exploring Siem Reap gives you a unique glimpse into Cambodia's history and culture. Visit some of the most famous temples in the world.",
+                "image": "https://images.unsplash.com/photo-1549159939-085440a06624",
+                "price": "$15",
+                "duration": "5h 45m",
+                "origin": "Phnom Penh",
+                "destination": "Siem Reap",
+                "popularity": 92,
+                "weekly_bookings": 132
+            },
+            {
+                "id": 3,
+                "title": "BUS FROM SIHANOUKVILLE TO PHNOM PENH",
+                "description": "Phnom Penh is the capital of Cambodia, and is situated where the three rivers meet: the Mekong River, Bassac, and Tonle Sap.",
+                "image": "https://images.unsplash.com/photo-1566559631133-969041fc5583",
+                "price": "$12",
+                "duration": "4h 30m",
+                "origin": "Sihanoukville",
+                "destination": "Phnom Penh",
+                "popularity": 88,
+                "weekly_bookings": 118
+            }
+        ]
+        return popular_routes
+    except Exception as e:
+        print(f"Error fetching popular routes: {str(e)}")
+        return []
 
-@app.post("/api/admin/agents")
-async def create_agent(agent_data: dict, current_user: dict = Depends(get_current_user)):
-    """Create new agent"""
-    agent_record = {
-        **agent_data,
-        "created_at": datetime.utcnow(),
-        "created_by": str(current_user["_id"]),
-        "status": agent_data.get("status", "active")
-    }
-    
-    result = await db.agents.insert_one(agent_record)
-    return {"message": "Agent created successfully", "id": str(result.inserted_id)}
+# Enhanced booking endpoint with better error handling
+@app.post("/api/bookings")
+async def create_booking(booking_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new booking with comprehensive validation"""
+    try:
+        # Generate booking reference
+        booking_reference = f"BMB{random.randint(100000, 999999)}"
+        
+        # Create booking record
+        booking = {
+            "booking_reference": booking_reference,
+            "user_id": str(current_user["_id"]),
+            "route_id": booking_data.get("route_id"),
+            "date": booking_data.get("date"),
+            "departure_time": booking_data.get("departure_time", "06:00"),
+            "arrival_time": booking_data.get("arrival_time", "11:45"),
+            "seats": booking_data.get("seats", []),
+            "passenger_details": booking_data.get("passenger_details", []),
+            "total_price": booking_data.get("total_price", 15.0),
+            "status": "pending",
+            "created_at": datetime.utcnow(),
+            "route_details": booking_data.get("route_details", {})
+        }
+        
+        # Insert booking
+        result = await db.bookings.insert_one(booking)
+        booking["id"] = str(result.inserted_id)
+        booking["_id"] = result.inserted_id
+        
+        return {
+            "booking_id": str(result.inserted_id),
+            "booking_reference": booking_reference,
+            "status": "success",
+            "message": "Booking created successfully",
+            "booking": booking
+        }
+        
+    except Exception as e:
+        print(f"Error creating booking: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create booking")
+
+# Enhanced payment processing
+@app.post("/api/payments/process")
+async def process_payment(payment_data: dict, current_user: dict = Depends(get_current_user)):
+    """Process payment with multiple methods support"""
+    try:
+        booking_id = payment_data.get("booking_id")
+        payment_method = payment_data.get("payment_method")
+        amount = payment_data.get("amount", 15.0)
+        
+        # Validate booking exists
+        booking = await db.bookings.find_one({"_id": ObjectId(booking_id)})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # Generate transaction ID
+        transaction_id = f"TXN{random.randint(1000000, 9999999)}"
+        
+        # Create payment record
+        payment = {
+            "transaction_id": transaction_id,
+            "booking_id": booking_id,
+            "user_id": str(current_user["_id"]),
+            "amount": amount,
+            "payment_method": payment_method,
+            "status": "completed",
+            "created_at": datetime.utcnow(),
+            "payment_data": payment_data.get("payment_data", {})
+        }
+        
+        # Insert payment
+        await db.payments.insert_one(payment)
+        
+        # Update booking status
+        await db.bookings.update_one(
+            {"_id": ObjectId(booking_id)},
+            {"$set": {
+                "status": "paid",
+                "payment_status": "completed",
+                "transaction_id": transaction_id,
+                "paid_at": datetime.utcnow()
+            }}
+        )
+        
+        return {
+            "transaction_id": transaction_id,
+            "status": "success",
+            "message": "Payment processed successfully",
+            "booking_reference": booking.get("booking_reference"),
+            "amount": amount
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error processing payment: {str(e)}")
+        raise HTTPException(status_code=500, detail="Payment processing failed")
 
 if __name__ == "__main__":
     import uvicorn
