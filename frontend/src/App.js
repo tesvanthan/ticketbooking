@@ -949,6 +949,11 @@ const BookingPage = () => {
   const handleConfirmBooking = async (bookingDetails) => {
     try {
       const { token } = useAuth();
+      if (!token) {
+        alert('Please login to continue');
+        return;
+      }
+      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/bookings`, {
         method: 'POST',
         headers: {
