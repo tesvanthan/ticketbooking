@@ -1125,10 +1125,18 @@ function App() {
           <Route path="/" element={<BookingPage />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/management" element={<ManagementDashboard />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/affiliate" element={<AffiliateProgram />} />
+          <Route path="/affiliate-program" element={<AffiliateProgram />} />
+          <Route path="/tickets" element={<TicketManagement />} />
+          <Route path="/print-tickets" element={<TicketManagement />} />
           <Route path="/routes" element={<BookingPage />} />
           <Route path="/about" element={<BookingPage />} />
           <Route path="/contact" element={<BookingPage />} />
-          <Route path="/profile" element={<MyBookings />} />
+          <Route path="/search/bus/:origin/:destination" element={<BookingPage />} />
+          <Route path="/search/ferry/:origin/:destination" element={<BookingPage />} />
+          <Route path="/search/private_taxi/:origin/:destination" element={<BookingPage />} />
+          <Route path="/search/airport_shuttle/:origin/:destination" element={<BookingPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
