@@ -1183,7 +1183,8 @@ async def get_all_routes(current_user: dict = Depends(get_current_user)):
         for route in routes:
             route["id"] = str(route["_id"])
         
-        return routes
+        # Use jsonable_encoder to properly serialize ObjectId objects
+        return jsonable_encoder(routes, custom_encoder={ObjectId: str})
     except Exception as e:
         logger.error(f"Error getting all routes: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
