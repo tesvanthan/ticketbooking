@@ -80,8 +80,10 @@ class BusTicketAPITest(unittest.TestCase):
         print("✅ User profile retrieval successful")
         
     def test_05_search_routes(self):
-        """Test route search functionality"""
+        """Test route search functionality with various parameters"""
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Test case 1: Standard search
         search_data = {
             "origin": "Phnom Penh",
             "destination": "Siem Reap",
@@ -102,21 +104,153 @@ class BusTicketAPITest(unittest.TestCase):
             self.assertIn("origin", data[0])
             self.assertIn("destination", data[0])
             self.assertIn("price", data[0])
-            print(f"✅ Route search successful: Found {len(data)} routes")
+            print(f"✅ Standard route search successful: Found {len(data)} routes")
         else:
-            print("⚠️ Route search returned no results, but API is working")
+            print("⚠️ Standard route search returned no results, but API is working")
+        
+        # Test case 2: Different origin and destination
+        search_data = {
+            "origin": "Phnom Penh",
+            "destination": "Sihanoukville",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        print(f"✅ Alternative route search successful: Found {len(data)} routes")
+        
+        # Test case 3: Different transport type
+        search_data = {
+            "origin": "Sihanoukville",
+            "destination": "Koh Rong",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "ferry"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        print(f"✅ Ferry transport search successful: Found {len(data)} routes")
+        
+        # Test case 4: Case insensitive search
+        search_data = {
+            "origin": "phnom penh",  # lowercase
+            "destination": "siem reap",  # lowercase
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        print(f"✅ Case insensitive search successful: Found {len(data)} routes")
+        
+        # Test case 5: Future date
+        next_week = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+        search_data = {
+            "origin": "Phnom Penh",
+            "destination": "Siem Reap",
+            "date": next_week,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        print(f"✅ Future date search successful: Found {len(data)} routes")
+        
+        # Test case 6: Invalid input handling
+        search_data = {
+            "origin": "NonExistentCity",
+            "destination": "AnotherNonExistentCity",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(response.status_code, 200)  # Should still return 200 with empty results
+        data = response.json()
+        self.assertEqual(len(data), 0)  # Should return empty list
+        print("✅ Invalid city search handled correctly with empty results")
             
     def test_06_get_suggestions(self):
-        """Test route suggestions for autocomplete"""
+        """Test route suggestions for autocomplete with various queries"""
+        # Test case 1: Standard query
         response = requests.get(f"{self.base_url}/suggestions?q=Phnom")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIsInstance(data, list)
         if len(data) > 0:
             self.assertIn("Phnom Penh", data)
-            print(f"✅ Route suggestions successful: Found {len(data)} suggestions")
+            print(f"✅ Standard suggestions query successful: Found {len(data)} suggestions")
         else:
-            print("⚠️ Route suggestions returned no results, but API is working")
+            print("⚠️ Standard suggestions query returned no results, but API is working")
+        
+        # Test case 2: Lowercase query
+        response = requests.get(f"{self.base_url}/suggestions?q=phnom")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        if len(data) > 0:
+            self.assertIn("Phnom Penh", data)
+            print(f"✅ Lowercase suggestions query successful: Found {len(data)} suggestions")
+        else:
+            print("⚠️ Lowercase suggestions query returned no results, but API is working")
+        
+        # Test case 3: Partial match
+        response = requests.get(f"{self.base_url}/suggestions?q=Siem")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        if len(data) > 0:
+            self.assertIn("Siem Reap", data)
+            print(f"✅ Partial match suggestions query successful: Found {len(data)} suggestions")
+        else:
+            print("⚠️ Partial match suggestions query returned no results, but API is working")
+        
+        # Test case 4: Destination query
+        response = requests.get(f"{self.base_url}/suggestions?q=Koh")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        if len(data) > 0:
+            self.assertIn("Koh Rong", data)
+            print(f"✅ Destination suggestions query successful: Found {len(data)} suggestions")
+        else:
+            print("⚠️ Destination suggestions query returned no results, but API is working")
+        
+        # Test case 5: Empty query
+        response = requests.get(f"{self.base_url}/suggestions?q=")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 0)  # Should return empty list
+        print("✅ Empty suggestions query handled correctly with empty results")
+        
+        # Test case 6: Non-existent location
+        response = requests.get(f"{self.base_url}/suggestions?q=NonExistentCity")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 0)  # Should return empty list
+        print("✅ Non-existent location query handled correctly with empty results")
             
     def test_07_get_popular_destinations(self):
         """Test popular destinations endpoint"""
