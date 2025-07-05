@@ -302,6 +302,16 @@ const SearchSection = ({ activeTab, onSearch }) => {
           }
         } catch (error) {
           console.error('Error fetching suggestions:', error);
+          // Fallback to static suggestions if API fails
+          const staticSuggestions = [
+            'Phnom Penh', 'Siem Reap', 'Sihanoukville', 'Kampot', 'Kep',
+            'Battambang', 'Poipet', 'Banteay Meanchey', 'Svay Rieng'
+          ];
+          const filtered = staticSuggestions.filter(dest => 
+            dest.toLowerCase().includes(value.toLowerCase())
+          );
+          setSuggestions(filtered.slice(0, 5));
+          setActiveSuggestion(field);
         }
       } else {
         setSuggestions([]);
