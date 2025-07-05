@@ -1086,16 +1086,20 @@ async def search_by_transport_type(transport_type: str, search: SearchRequest):
 async def get_all_users(current_user: dict = Depends(get_current_user)):
     """Get all users for admin management"""
     # In real implementation, check admin permissions
-    users = await db.users.find({}).to_list(length=1000)
-    
-    for user in users:
-        user["id"] = str(user["_id"])
-        user.pop("password", None)  # Remove password from response
-        user["name"] = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-        user["role"] = user.get("role", "passenger")
-        user["status"] = user.get("status", "active")
-    
-    return users
+    try:
+        users = await db.users.find({}).to_list(length=1000)
+        
+        for user in users:
+            user["id"] = str(user["_id"])
+            user.pop("password", None)  # Remove password from response
+            user["name"] = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            user["role"] = user.get("role", "passenger")
+            user["status"] = user.get("status", "active")
+        
+        return users
+    except Exception as e:
+        logger.error(f"Error getting all users: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.put("/api/admin/users/{user_id}/permissions")
 async def update_user_permissions(user_id: str, permissions_data: dict, current_user: dict = Depends(get_current_user)):
