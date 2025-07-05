@@ -915,7 +915,8 @@ async def get_past_bookings(current_user: dict = Depends(get_current_user)):
                     "duration": "Unknown"
                 }
     
-    return bookings
+    # Use jsonable_encoder to properly serialize ObjectId objects
+    return jsonable_encoder(bookings, custom_encoder={ObjectId: str})
 
 @app.post("/api/user/invite")
 async def send_invite(invite_data: dict, current_user: dict = Depends(get_current_user)):
