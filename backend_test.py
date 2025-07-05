@@ -562,6 +562,27 @@ def run_tests():
     test_suite.addTest(BusTicketAPITest('test_09_create_booking'))
     test_suite.addTest(BusTicketAPITest('test_10_get_user_bookings'))
     
+    # New User Profile Feature Tests
+    test_suite.addTest(BusTicketAPITest('test_11_user_credit'))
+    test_suite.addTest(BusTicketAPITest('test_12_upcoming_bookings'))
+    test_suite.addTest(BusTicketAPITest('test_13_past_bookings'))
+    test_suite.addTest(BusTicketAPITest('test_14_user_invite'))
+    test_suite.addTest(BusTicketAPITest('test_15_update_profile'))
+    test_suite.addTest(BusTicketAPITest('test_16_change_password'))
+    
+    # Affiliate Program Tests
+    test_suite.addTest(BusTicketAPITest('test_17_affiliate_status'))
+    test_suite.addTest(BusTicketAPITest('test_18_affiliate_register'))
+    test_suite.addTest(BusTicketAPITest('test_19_affiliate_stats'))
+    test_suite.addTest(BusTicketAPITest('test_20_affiliate_activity'))
+    
+    # Ticket Management Tests
+    test_suite.addTest(BusTicketAPITest('test_21_ticket_download'))
+    test_suite.addTest(BusTicketAPITest('test_22_ticket_send'))
+    
+    # Enhanced Search Tests
+    test_suite.addTest(BusTicketAPITest('test_23_search_by_transport_type'))
+    
     runner = unittest.TextTestRunner(verbosity=2)
     return runner.run(test_suite)
 
