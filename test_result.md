@@ -393,6 +393,9 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Failed to fetch seat layout error"
+    - "Select payment method error"
+    - "Missing Affiliate management dashboard"
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
     - "Management Features"
@@ -408,6 +411,8 @@ test_plan:
     - "Ticket Management"
     - "Admin Management APIs"
     - "Bulk Operations"
+    - "Failed to fetch seat layout error"
+    - "Select payment method error"
   test_all: false
   test_priority: "stuck_first"
 
