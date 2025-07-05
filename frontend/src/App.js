@@ -929,7 +929,7 @@ const BookingPage = () => {
   const [bookingData, setBookingData] = useState(null);
   const [paymentData, setPaymentData] = useState(null);
   const [activeTab, setActiveTab] = useState('bus');
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
 
   const handleSearch = async (data) => {
