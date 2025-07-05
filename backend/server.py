@@ -11,6 +11,7 @@ import jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 from bson import ObjectId
+from bson.errors import InvalidId
 from pymongo import MongoClient
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
