@@ -55,6 +55,165 @@ class BusTicketAPIFixesTest(unittest.TestCase):
         """Test the fixed upcoming bookings endpoint"""
         print("\n🔍 Testing User Profile Upcoming Bookings API...")
         
+        # Test the upcoming bookings endpoint
+        response = requests.get(
+            f"{self.base_url}/bookings/upcoming",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        
+        # Check response status
+        self.assertEqual(response.status_code, 200, 
+                         f"Expected status code 200, got {response.status_code}. Response: {response.text}")
+        
+        # Validate response data
+        data = response.json()
+        self.assertIsInstance(data, list, "Response should be a list")
+        
+        print(f"✅ Upcoming bookings API working correctly. Found {len(data)} bookings.")
+        
+    def test_02_past_bookings(self):
+        """Test the fixed past bookings endpoint"""
+        print("\n🔍 Testing User Profile Past Bookings API...")
+        
+        # Test the past bookings endpoint
+        response = requests.get(
+            f"{self.base_url}/bookings/past",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        
+        # Check response status
+        self.assertEqual(response.status_code, 200, 
+                         f"Expected status code 200, got {response.status_code}. Response: {response.text}")
+        
+        # Validate response data
+        data = response.json()
+        self.assertIsInstance(data, list, "Response should be a list")
+        
+        print(f"✅ Past bookings API working correctly. Found {len(data)} bookings.")
+        
+    def test_03_admin_users(self):
+        """Test the fixed admin users endpoint"""
+        print("\n🔍 Testing Admin Users API...")
+        
+        # Test the admin users endpoint
+        response = requests.get(
+            f"{self.base_url}/admin/users",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        
+        # Check response status
+        self.assertEqual(response.status_code, 200, 
+                         f"Expected status code 200, got {response.status_code}. Response: {response.text}")
+        
+        # Validate response data
+        data = response.json()
+        self.assertIsInstance(data, list, "Response should be a list")
+        
+        print(f"✅ Admin users API working correctly. Found {len(data)} users.")
+        
+    def test_04_admin_routes(self):
+        """Test the fixed admin routes endpoint"""
+        print("\n🔍 Testing Admin Routes API...")
+        
+        # Test the admin routes endpoint
+        response = requests.get(
+            f"{self.base_url}/admin/routes",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        
+        # Check response status
+        self.assertEqual(response.status_code, 200, 
+                         f"Expected status code 200, got {response.status_code}. Response: {response.text}")
+        
+        # Validate response data
+        data = response.json()
+        self.assertIsInstance(data, list, "Response should be a list")
+        
+        print(f"✅ Admin routes API working correctly. Found {len(data)} routes.")
+        
+    def test_05_admin_buses(self):
+        """Test the fixed admin buses endpoint"""
+        print("\n🔍 Testing Admin Buses API...")
+        
+        # Test the admin buses endpoint
+        response = requests.get(
+            f"{self.base_url}/admin/buses",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        
+        # Check response status
+        self.assertEqual(response.status_code, 200, 
+                         f"Expected status code 200, got {response.status_code}. Response: {response.text}")
+        
+        # Validate response data
+        data = response.json()
+        self.assertIsInstance(data, list, "Response should be a list")
+        
+        print(f"✅ Admin buses API working correctly. Found {len(data)} buses.")
+        
+    def test_06_seat_layout(self):
+        """Test the seat layout endpoint"""
+        print("\n🔍 Testing Seat Layout API...")
+        
+        # Step 1: Search for routes
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        search_data = {
+            "origin": "Phnom Penh",
+            "destination": "Siem Reap",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        search_response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(search_response.status_code, 200)
+        routes = search_response.json()
+        
+        if not routes:
+            self.skipTest("No routes found for testing")
+        
+        route_id = routes[0]["id"]
+        print(f"Found route: {route_id}")
+        
+        # Step 2: Get seat layout
+        seats_response = requests.get(
+            f"{self.base_url}/seats/{route_id}",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        self.assertEqual(seats_response.status_code, 200)
+        seats_data = seats_response.json()
+        
+        print(f"Seat layout response keys: {seats_data.keys()}")
+        
+        # Check if we have seat layout data
+        self.assertTrue("seats" in seats_data or "seat_layout" in seats_data, 
+                       "Seat layout response should contain 'seats' or 'seat_layout' field")
+        
+        print("✅ Seat layout API working correctly.")
+
+if __name__ == "__main__":
+    # Create a test suite with specific tests
+    test_suite = unittest.TestSuite()
+    
+    # Add tests for fixed endpoints
+    test_suite.addTest(BusTicketAPIFixesTest('test_01_upcoming_bookings'))
+    test_suite.addTest(BusTicketAPIFixesTest('test_02_past_bookings'))
+    test_suite.addTest(BusTicketAPIFixesTest('test_03_admin_users'))
+    test_suite.addTest(BusTicketAPIFixesTest('test_04_admin_routes'))
+    test_suite.addTest(BusTicketAPIFixesTest('test_05_admin_buses'))
+    test_suite.addTest(BusTicketAPIFixesTest('test_06_seat_layout'))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner(verbosity=2)
+    runner.run(test_suite)
+        
+    def test_01_upcoming_bookings(self):
+        """Test the fixed upcoming bookings endpoint"""
+        print("\n🔍 Testing User Profile Upcoming Bookings API...")
+        
         # Create a booking first to ensure we have data
         booking_id = self.create_test_booking()
         if not booking_id:
