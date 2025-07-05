@@ -591,11 +591,7 @@ export const AdminManagement = () => {
               </div>
             )}
             {activeTab === 'affiliates' && (
-              <div className="text-center py-16">
-                <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Affiliate Management</h3>
-                <p className="text-gray-600">Manage affiliate partners and commissions</p>
-              </div>
+              <AffiliateProgram />
             )}
             {activeTab === 'analytics' && (
               <div className="text-center py-16">
