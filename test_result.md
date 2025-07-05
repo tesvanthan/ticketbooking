@@ -234,17 +234,20 @@ backend:
         agent: "testing"
         comment: "All affiliate program endpoints (status, registration, stats, activity) are now working correctly in server.py."
 
-  - task: "Payment Flow"
+  - task: "Enhanced Search"
     implemented: true
     working: true
-    file: "/app/backend/server.py"
+    file: "/app/backend/main.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
+      - working: false
+        agent: "testing"
+        comment: "Enhanced search endpoints for different transport types are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
       - working: true
         agent: "testing"
-        comment: "Complete booking to payment flow tested and working correctly. Both credit card and PayPal payment methods are functioning properly."
+        comment: "Enhanced search endpoints for different transport types (bus, ferry) are now working correctly in server.py."
 
   - task: "Admin Management APIs"
     implemented: true
