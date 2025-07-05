@@ -211,7 +211,10 @@ const Header = ({ activeTab, setActiveTab }) => {
                 <Link to="/" className="block py-2 text-gray-700 hover:text-orange-500">Home</Link>
                 <Link to="/routes" className="block py-2 text-gray-700 hover:text-orange-500">Routes</Link>
                 {user && (
-                  <Link to="/my-bookings" className="block py-2 text-gray-700 hover:text-orange-500">My Bookings</Link>
+                  <>
+                    <Link to="/my-bookings" className="block py-2 text-gray-700 hover:text-orange-500">My Bookings</Link>
+                    <Link to="/management" className="block py-2 text-gray-700 hover:text-orange-500">Management</Link>
+                  </>
                 )}
                 <Link to="/about" className="block py-2 text-gray-700 hover:text-orange-500">About</Link>
                 <Link to="/contact" className="block py-2 text-gray-700 hover:text-orange-500">Contact</Link>
