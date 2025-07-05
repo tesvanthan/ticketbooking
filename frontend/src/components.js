@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 // Context for authentication and global state
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -79,9 +79,10 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       } else {
         const error = await response.json();
-        return { success: false, error: error.detail };
+        return { success: false, error: error.detail || 'Login failed' };
       }
     } catch (error) {
+      console.error('Login error:', error);
       return { success: false, error: 'Network error' };
     } finally {
       setLoading(false);
@@ -104,9 +105,10 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: data };
       } else {
         const error = await response.json();
-        return { success: false, error: error.detail };
+        return { success: false, error: error.detail || 'Registration failed' };
       }
     } catch (error) {
+      console.error('Registration error:', error);
       return { success: false, error: 'Network error' };
     } finally {
       setLoading(false);
