@@ -185,18 +185,24 @@ backend:
       - working: false
         agent: "testing"
         comment: "User profile features (credit, upcoming/past bookings, invites, profile updates, password changes) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+      - working: false
+        agent: "testing"
+        comment: "User credit endpoint works correctly, but upcoming/past bookings endpoints return 500 errors. User invite, profile update, and password change endpoints work correctly."
 
   - task: "Affiliate Program"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/main.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "Affiliate program endpoints (status, registration, stats, activity) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+      - working: true
+        agent: "testing"
+        comment: "All affiliate program endpoints (status, registration, stats, activity) are now working correctly in server.py."
 
   - task: "Ticket Management"
     implemented: true
@@ -209,18 +215,60 @@ backend:
       - working: false
         agent: "testing"
         comment: "Ticket management endpoints (download, send) are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+      - working: false
+        agent: "testing"
+        comment: "Ticket download endpoint works correctly, but ticket send endpoint returns a 500 error when creating a booking."
 
   - task: "Enhanced Search"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/main.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "Enhanced search endpoints for different transport types are defined in main.py but not accessible in server.py. The server is running from server.py, not main.py, causing 404 errors for these endpoints."
+      - working: true
+        agent: "testing"
+        comment: "Enhanced search endpoints for different transport types (bus, ferry) are now working correctly in server.py."
+
+  - task: "Payment Flow"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Complete booking to payment flow tested and working correctly. Both credit card and PayPal payment methods are functioning properly."
+
+  - task: "Admin Management APIs"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Admin user endpoint returns 500 error. Admin user permissions and admin buses endpoints work correctly. Admin routes endpoint returns 500 error. Admin stats endpoint works correctly."
+
+  - task: "Bulk Operations"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Bulk upload endpoints for buses and routes return 422 errors, indicating validation issues with the request format."
 
 frontend:
   - task: "Search Form Component"
@@ -262,7 +310,7 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
 
 test_plan:
@@ -275,9 +323,9 @@ test_plan:
     - "Auto-fill Suggestions"
     - "Frontend-Backend Communication"
     - "User Profile Features"
-    - "Affiliate Program"
     - "Ticket Management"
-    - "Enhanced Search"
+    - "Admin Management APIs"
+    - "Bulk Operations"
   test_all: false
   test_priority: "stuck_first"
 
@@ -288,3 +336,5 @@ agent_communication:
     message: "Completed comprehensive testing of backend APIs. Search and auto-suggestions endpoints are working correctly with various parameters. Authentication system is functioning properly. Booking flow works but there's a minor issue with retrieving bookings after payment processing (500 error). The backend APIs are solid - frontend integration issues are likely causing the reported problems."
   - agent: "testing"
     message: "Found critical issue: The new endpoints (user profile features, affiliate program, ticket management, enhanced search) are defined in main.py but the server is running from server.py. This is causing 404 errors for these endpoints. The core functionality (search, authentication, booking) works correctly because those endpoints are defined in both files. To fix this, either move the new endpoints to server.py or update the supervisor configuration to run from main.py instead."
+  - agent: "testing"
+    message: "Completed comprehensive testing of all backend features. Core functionality (search, authentication, booking, payment) is working correctly. Affiliate program and enhanced search endpoints are now working. However, there are still issues with some endpoints: 1) User profile features: credit works but upcoming/past bookings return 500 errors, 2) Ticket management: download works but send has issues, 3) Admin management: user and routes endpoints return 500 errors, 4) Bulk operations: both endpoints return 422 validation errors. These issues need to be fixed for full functionality."
