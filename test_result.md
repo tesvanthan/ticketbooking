@@ -258,6 +258,42 @@ backend:
         agent: "testing"
         comment: "Admin user endpoint returns 500 error. Admin user permissions and admin buses endpoints work correctly. Admin routes endpoint returns 500 error. Admin stats endpoint works correctly."
 
+  - task: "Seat Layout API"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'Failed to fetch seat layout' error. This is a critical issue for the booking flow."
+
+  - task: "Payment Method Selection"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'Select payment method' error. Payment processing is not working correctly."
+
+  - task: "Affiliate Management Dashboard API"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that Affiliate management dashboard is not yet added and needs to be enhanced with best good feature management."
+
   - task: "Bulk Operations"
     implemented: true
     working: false
