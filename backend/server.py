@@ -276,11 +276,15 @@ app.add_middleware(
 
 # Include management router
 try:
+    import sys
+    sys.path.append('/app/backend')
     from management_apis import management_router
     app.include_router(management_router)
     logger.info("Management APIs loaded successfully")
 except ImportError as e:
     logger.warning(f"Could not load management APIs: {e}")
+except Exception as e:
+    logger.error(f"Error loading management APIs: {e}")
 
 # Health check endpoint
 @app.get("/api/")
