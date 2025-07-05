@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BusTicket Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test { margin: 20px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🚌 BusTicket Platform - Connection Test</h1>
+    
+    <div id="test-results">
+        <div class="test loading">
+            <strong>Testing connections...</strong>
+        </div>
+    </div>
+
+    <button onclick="runTests()">Run Tests Again</button>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8001';
+        
+        async function runTests() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="test loading"><strong>Running tests...</strong></div>';
+            
+            const tests = [
+                { name: 'Backend Health Check', test: testBackendHealth },
+                { name: 'Search API', test: testSearchAPI },
+                { name: 'Suggestions API', test: testSuggestionsAPI },
+                { name: 'User Registration', test: testUserRegistration },
+                { name: 'User Login', test: testUserLogin }
+            ];
+            
+            const results = [];
+            
+            for (const testCase of tests) {
+                try {
+                    console.log(`Running test: ${testCase.name}`);
+                    const result = await testCase.test();
+                    results.push({ name: testCase.name, success: true, message: result });
+                } catch (error) {
+                    console.error(`Test failed: ${testCase.name}`, error);
+                    results.push({ name: testCase.name, success: false, message: error.message });
+                }
+            }
+            
+            displayResults(results);
+        }
+        
+        async function testBackendHealth() {
+            const response = await fetch(`${BACKEND_URL}/api/`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return data.message;
+        }
+        
+        async function testSearchAPI() {
+            const response = await fetch(`${BACKEND_URL}/api/search`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    origin: 'Phnom Penh',
+                    destination: 'Siem Reap',
+                    date: '2025-07-10',
+                    passengers: 1,
+                    transport_type: 'bus'
+                })
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return `Found ${data.length} routes`;
+        }
+        
+        async function testSuggestionsAPI() {
+            const response = await fetch(`${BACKEND_URL}/api/suggestions?q=Phnom`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return `Found ${data.length} suggestions`;
+        }
+        
+        async function testUserRegistration() {
+            const email = `test_${Date.now()}@example.com`;
+            const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    password: 'Test123!',
+                    first_name: 'Test',
+                    last_name: 'User'
+                })
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || `HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            return `User registered: ${data.email}`;
+        }
+        
+        async function testUserLogin() {
+            const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'Test123!'
+                })
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || `HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            return 'Login successful, token received';
+        }
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = results.map(result => 
+                `<div class="test ${result.success ? 'success' : 'error'}">
+                    <strong>${result.name}:</strong> ${result.message}
+                </div>`
+            ).join('');
+            
+            const allPassed = results.every(r => r.success);
+            resultsDiv.innerHTML += `
+                <div class="test ${allPassed ? 'success' : 'error'}">
+                    <strong>Overall Result:</strong> ${allPassed ? '✅ All tests passed! Platform is working correctly.' : '❌ Some tests failed. Check the errors above.'}
+                </div>
+            `;
+        }
+        
+        // Run tests on page load
+        window.onload = runTests;
+    </script>
+</body>
+</html>
