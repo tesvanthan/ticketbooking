@@ -20,7 +20,7 @@ import {
   UserX,
   Building,
   Route,
-  Seat,
+  Square,
   DollarSign,
   BarChart3,
   Calendar,
