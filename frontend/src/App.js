@@ -986,10 +986,12 @@ const MyBookings = () => {
 const BookingPage = () => {
   const [currentStep, setCurrentStep] = useState('search');
   const [searchData, setSearchData] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [bookingData, setBookingData] = useState(null);
   const [paymentData, setPaymentData] = useState(null);
   const [activeTab, setActiveTab] = useState('bus');
+  const [loading, setLoading] = useState(false);
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
