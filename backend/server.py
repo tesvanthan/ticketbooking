@@ -1129,7 +1129,8 @@ async def get_all_buses(current_user: dict = Depends(get_current_user)):
         for bus in buses:
             bus["id"] = str(bus["_id"])
         
-        return buses
+        # Use jsonable_encoder to properly serialize ObjectId objects
+        return jsonable_encoder(buses, custom_encoder={ObjectId: str})
     except Exception as e:
         logger.error(f"Error getting all buses: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
