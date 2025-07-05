@@ -980,6 +980,306 @@ async def search_by_transport_type(transport_type: str, search: SearchRequest):
     search.transport_type = transport_type
     return await search_routes(search)
 
+# Admin Management APIs
+@app.get("/api/admin/users")
+async def get_all_users(current_user: dict = Depends(get_current_user)):
+    """Get all users for admin management"""
+    # In real implementation, check admin permissions
+    users = await db.users.find({}).to_list(length=1000)
+    
+    for user in users:
+        user["id"] = str(user["_id"])
+        user.pop("password", None)  # Remove password from response
+        user["name"] = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+        user["role"] = user.get("role", "passenger")
+        user["status"] = user.get("status", "active")
+    
+    return users
+
+@app.put("/api/admin/users/{user_id}/permissions")
+async def update_user_permissions(user_id: str, permissions_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update user permissions"""
+    try:
+        await db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {
+                "permissions": permissions_data["permissions"],
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        return {"message": "Permissions updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+
+@app.get("/api/admin/buses")
+async def get_all_buses(current_user: dict = Depends(get_current_user)):
+    """Get all buses for admin management"""
+    buses = await db.buses.find({}).to_list(length=1000)
+    
+    for bus in buses:
+        bus["id"] = str(bus["_id"])
+    
+    return buses
+
+@app.post("/api/admin/buses")
+async def create_bus(bus_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new bus"""
+    bus_record = {
+        **bus_data,
+        "created_at": datetime.utcnow(),
+        "created_by": str(current_user["_id"]),
+        "status": bus_data.get("status", "active")
+    }
+    
+    result = await db.buses.insert_one(bus_record)
+    return {"message": "Bus created successfully", "id": str(result.inserted_id)}
+
+@app.put("/api/admin/buses/{bus_id}")
+async def update_bus(bus_id: str, bus_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update bus information"""
+    try:
+        await db.buses.update_one(
+            {"_id": ObjectId(bus_id)},
+            {"$set": {
+                **bus_data,
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        return {"message": "Bus updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid bus ID")
+
+@app.delete("/api/admin/buses/{bus_id}")
+async def delete_bus(bus_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete bus"""
+    try:
+        result = await db.buses.delete_one({"_id": ObjectId(bus_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Bus not found")
+        return {"message": "Bus deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid bus ID")
+
+@app.get("/api/admin/routes")
+async def get_all_routes(current_user: dict = Depends(get_current_user)):
+    """Get all routes for admin management"""
+    routes = await db.routes.find({}).to_list(length=1000)
+    
+    for route in routes:
+        route["id"] = str(route["_id"])
+    
+    return routes
+
+@app.post("/api/admin/routes")
+async def create_route(route_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new route"""
+    route_record = {
+        **route_data,
+        "created_at": datetime.utcnow(),
+        "created_by": str(current_user["_id"]),
+        "status": route_data.get("status", "active")
+    }
+    
+    result = await db.routes.insert_one(route_record)
+    return {"message": "Route created successfully", "id": str(result.inserted_id)}
+
+@app.put("/api/admin/routes/{route_id}")
+async def update_route(route_id: str, route_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update route information"""
+    try:
+        await db.routes.update_one(
+            {"_id": ObjectId(route_id)},
+            {"$set": {
+                **route_data,
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        return {"message": "Route updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid route ID")
+
+@app.delete("/api/admin/routes/{route_id}")
+async def delete_route(route_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete route"""
+    try:
+        result = await db.routes.delete_one({"_id": ObjectId(route_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Route not found")
+        return {"message": "Route deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid route ID")
+
+@app.get("/api/admin/stats")
+async def get_admin_dashboard_stats(current_user: dict = Depends(get_current_user)):
+    """Get comprehensive admin dashboard statistics"""
+    # Get various counts and stats
+    total_users = await db.users.count_documents({})
+    active_buses = await db.buses.count_documents({"status": "active"})
+    total_routes = await db.routes.count_documents({})
+    
+    # Get revenue data
+    revenue_pipeline = [
+        {"$match": {"status": "completed"}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+    ]
+    revenue_result = await db.payments.aggregate(revenue_pipeline).to_list(length=1)
+    total_revenue = revenue_result[0]["total"] if revenue_result else 0
+    
+    # Get monthly stats
+    from datetime import datetime, timedelta
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
+    monthly_bookings = await db.bookings.count_documents({
+        "created_at": {"$gte": thirty_days_ago}
+    })
+    
+    monthly_revenue_pipeline = [
+        {"$match": {
+            "status": "completed",
+            "created_at": {"$gte": thirty_days_ago}
+        }},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+    ]
+    monthly_revenue_result = await db.payments.aggregate(monthly_revenue_pipeline).to_list(length=1)
+    monthly_revenue = monthly_revenue_result[0]["total"] if monthly_revenue_result else 0
+    
+    return {
+        "total_users": total_users,
+        "active_buses": active_buses,
+        "total_routes": total_routes,
+        "total_revenue": round(total_revenue, 2),
+        "monthly_bookings": monthly_bookings,
+        "monthly_revenue": round(monthly_revenue, 2),
+        "generated_at": datetime.utcnow()
+    }
+
+# Bulk operations for admin
+@app.post("/api/admin/buses/bulk-upload")
+async def bulk_upload_buses(buses_data: list, current_user: dict = Depends(get_current_user)):
+    """Bulk upload buses from CSV/Excel"""
+    created_count = 0
+    errors = []
+    
+    for i, bus_data in enumerate(buses_data):
+        try:
+            bus_record = {
+                **bus_data,
+                "created_at": datetime.utcnow(),
+                "created_by": str(current_user["_id"]),
+                "status": bus_data.get("status", "active")
+            }
+            await db.buses.insert_one(bus_record)
+            created_count += 1
+        except Exception as e:
+            errors.append(f"Row {i+1}: {str(e)}")
+    
+    return {
+        "message": f"Bulk upload completed. {created_count} buses created.",
+        "created_count": created_count,
+        "errors": errors
+    }
+
+@app.post("/api/admin/routes/bulk-upload")
+async def bulk_upload_routes(routes_data: list, current_user: dict = Depends(get_current_user)):
+    """Bulk upload routes from CSV/Excel"""
+    created_count = 0
+    errors = []
+    
+    for i, route_data in enumerate(routes_data):
+        try:
+            route_record = {
+                **route_data,
+                "created_at": datetime.utcnow(),
+                "created_by": str(current_user["_id"]),
+                "status": route_data.get("status", "active")
+            }
+            await db.routes.insert_one(route_record)
+            created_count += 1
+        except Exception as e:
+            errors.append(f"Row {i+1}: {str(e)}")
+    
+    return {
+        "message": f"Bulk upload completed. {created_count} routes created.",
+        "created_count": created_count,
+        "errors": errors
+    }
+
+# Seat configuration management
+@app.get("/api/admin/seats/configurations")
+async def get_seat_configurations(current_user: dict = Depends(get_current_user)):
+    """Get all seat layout configurations"""
+    configurations = await db.seat_configurations.find({}).to_list(length=100)
+    
+    for config in configurations:
+        config["id"] = str(config["_id"])
+    
+    return configurations
+
+@app.post("/api/admin/seats/configurations")
+async def create_seat_configuration(config_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new seat layout configuration"""
+    config_record = {
+        "name": config_data["name"],
+        "vehicle_type": config_data["vehicle_type"],
+        "total_seats": config_data["total_seats"],
+        "layout": config_data["layout"],  # Seat layout matrix
+        "created_at": datetime.utcnow(),
+        "created_by": str(current_user["_id"])
+    }
+    
+    result = await db.seat_configurations.insert_one(config_record)
+    return {"message": "Seat configuration created successfully", "id": str(result.inserted_id)}
+
+# Bus operator management
+@app.get("/api/admin/operators")
+async def get_bus_operators(current_user: dict = Depends(get_current_user)):
+    """Get all bus operators"""
+    operators = await db.bus_operators.find({}).to_list(length=1000)
+    
+    for operator in operators:
+        operator["id"] = str(operator["_id"])
+    
+    return operators
+
+@app.post("/api/admin/operators")
+async def create_bus_operator(operator_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new bus operator"""
+    operator_record = {
+        **operator_data,
+        "created_at": datetime.utcnow(),
+        "created_by": str(current_user["_id"]),
+        "status": operator_data.get("status", "active")
+    }
+    
+    result = await db.bus_operators.insert_one(operator_record)
+    return {"message": "Bus operator created successfully", "id": str(result.inserted_id)}
+
+# Agent management
+@app.get("/api/admin/agents")
+async def get_agents(current_user: dict = Depends(get_current_user)):
+    """Get all agents"""
+    agents = await db.agents.find({}).to_list(length=1000)
+    
+    for agent in agents:
+        agent["id"] = str(agent["_id"])
+    
+    return agents
+
+@app.post("/api/admin/agents")
+async def create_agent(agent_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new agent"""
+    agent_record = {
+        **agent_data,
+        "created_at": datetime.utcnow(),
+        "created_by": str(current_user["_id"]),
+        "status": agent_data.get("status", "active")
+    }
+    
+    result = await db.agents.insert_one(agent_record)
+    return {"message": "Agent created successfully", "id": str(result.inserted_id)}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
