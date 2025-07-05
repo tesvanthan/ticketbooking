@@ -299,6 +299,7 @@ class BusTicketAPIFixesTest(unittest.TestCase):
             return None
             
         route_id = routes[0]["id"]
+        print(f"Found route: {route_id}")
         
         # Get seat layout
         seats_response = requests.get(
@@ -311,14 +312,21 @@ class BusTicketAPIFixesTest(unittest.TestCase):
             return None
             
         seats_data = seats_response.json()
+        print(f"Seat layout response keys: {seats_data.keys()}")
         
         # Find available seats
-        available_seats = [seat["id"] for seat in seats_data["seats"] if seat["status"] == "available"]
+        available_seats = []
+        if "seats" in seats_data:
+            available_seats = [seat["id"] for seat in seats_data["seats"] if seat["status"] == "available"]
+        elif "seat_layout" in seats_data:
+            available_seats = [seat["seat_id"] for seat in seats_data["seat_layout"] if seat["is_available"]]
         
         if not available_seats:
             print("⚠️ No available seats found")
             return None
             
+        print(f"Found available seat: {available_seats[0]}")
+        
         # Create booking
         booking_data = {
             "route_id": route_id,
@@ -334,11 +342,16 @@ class BusTicketAPIFixesTest(unittest.TestCase):
             "date": tomorrow
         }
         
+        print(f"Creating booking with data: {json.dumps(booking_data)}")
+        
         booking_response = requests.post(
             f"{self.base_url}/bookings",
             headers={"Authorization": f"Bearer {self.token}"},
             json=booking_data
         )
+        
+        print(f"Booking response status: {booking_response.status_code}")
+        print(f"Booking response: {booking_response.text[:200]}")
         
         if booking_response.status_code != 200:
             print(f"⚠️ Booking creation failed: {booking_response.status_code}")
