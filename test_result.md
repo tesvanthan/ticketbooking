@@ -116,6 +116,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Backend API running on localhost:8001 and external URL, responding correctly to health check"
+      - working: true
+        agent: "testing"
+        comment: "Health check endpoint tested and working correctly. Returns 200 status code and appropriate message."
 
   - task: "Search API Endpoint"
     implemented: true
@@ -123,11 +126,14 @@ backend:
     file: "/app/backend/main.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Search endpoint /api/search exists and functional, needs testing with frontend integration"
+      - working: true
+        agent: "testing"
+        comment: "Search endpoint thoroughly tested with various parameters. Successfully handles different origins, destinations, dates, and transport types. Case insensitive search works correctly. Error handling for invalid inputs returns empty results as expected."
 
   - task: "Auto-suggestions API"
     implemented: true
@@ -135,11 +141,14 @@ backend:
     file: "/app/backend/main.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Suggestions endpoint /api/suggestions exists for auto-fill functionality"
+      - working: true
+        agent: "testing"
+        comment: "Suggestions endpoint thoroughly tested with various query parameters. Successfully returns matching locations for different queries. Case insensitive search works correctly. Empty queries and non-existent locations are handled properly with empty results."
 
 frontend:
   - task: "Search Form Component"
