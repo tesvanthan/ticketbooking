@@ -447,18 +447,45 @@ class BusTicketAPITest(unittest.TestCase):
             
     def test_10_get_user_bookings(self):
         """Test retrieving user bookings"""
-        if not self.token:
-            self.test_03_login_user()
-            
+        # This test depends on test_09_create_booking having run successfully
+        # Register and login a new user for this test
+        test_email = f"bookings_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Bookings",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Get user bookings (should be empty for a new user)
         response = requests.get(
             f"{self.base_url}/bookings",
-            headers={"Authorization": f"Bearer {self.token}"}
+            headers={"Authorization": f"Bearer {token}"}
         )
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIsInstance(data, list)
-        print(f"✅ User bookings retrieval successful: Found {len(data)} bookings")
+        print(f"✅ User bookings retrieval successful: Found {len(data)} bookings for new user")
 
 def run_tests():
     """Run all tests in order"""
