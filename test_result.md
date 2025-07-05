@@ -274,7 +274,7 @@ backend:
         comment: "User reported 'Failed to fetch seat layout' error. This is a critical issue for the booking flow."
       - working: true
         agent: "testing"
-        comment: "Seat layout API is working correctly. The API returns the expected data structure with seats and layout information. No 500 errors observed."
+        comment: "Testing confirmed the seat layout API is working correctly with no 500 errors. The API responds properly and contains expected seat and layout data."
 
   - task: "Payment Method Selection"
     implemented: true
