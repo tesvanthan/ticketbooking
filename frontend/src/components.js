@@ -452,18 +452,22 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
     }
   }, [searchResults]);
 
-  return (
-    <div className="py-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        {searchResults.length} routes found
-      </h2>
-      {/* Rest of the component rendering logic */}
-    </div>
-  );
-};
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        <span className="ml-2 text-gray-600">Searching for routes...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <p className="text-red-600 mb-4">{error}</p>
         <button 
-          onClick={performSearch}
+          onClick={() => window.location.reload()}
           className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
         >
           Try Again
@@ -472,7 +476,7 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
     );
   }
 
-  if (results.length === 0) {
+  if (searchResults.length === 0) {
     return (
       <div className="text-center py-16">
         <Bus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -490,14 +494,70 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
   return (
     <div className="py-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        {results.length} routes found from {searchData.origin} to {searchData.destination}
+        {searchResults.length} routes found from {searchData?.origin} to {searchData?.destination}
       </h2>
 
       <div className="space-y-4">
-        {results.map((route) => (
+        {searchResults.map((route) => (
           <motion.div
             key={route.id}
             initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">{route.company}</h3>
+                <p className="text-gray-600">{route.vehicle_type}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-orange-500">${route.price}</div>
+                <div className="text-sm text-gray-500">per person</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="text-center">
+                <div className="text-lg font-semibold">{route.departure_time}</div>
+                <div className="text-gray-600">{searchData?.origin}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-gray-600">Duration</div>
+                <div className="font-semibold">{route.duration}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-semibold">{route.arrival_time}</div>
+                <div className="text-gray-600">{searchData?.destination}</div>
+              </div>
+            </div>
+
+            {route.amenities && route.amenities.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {route.amenities.map((amenity, index) => (
+                  <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                    {amenity}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">{route.available_seats}</span> seats available
+              </div>
+              <button
+                onClick={() => onSelectRoute(route.id)}
+                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold"
+              >
+                Select Seats
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
           >
