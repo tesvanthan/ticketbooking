@@ -309,17 +309,17 @@ backend:
         agent: "testing"
         comment: "Affiliate management APIs are fully implemented and working correctly. All endpoints (/api/affiliate/status, /api/affiliate/register, /api/affiliate/stats, /api/affiliate/activity) return 200 responses with the expected data."
 
-  - task: "Bulk Operations"
+  - task: "Complete Booking Flow"
     implemented: true
     working: false
     file: "/app/backend/server.py"
     stuck_count: 1
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
-        comment: "Bulk upload endpoints for buses and routes return 422 errors, indicating validation issues with the request format."
+        comment: "The complete booking flow has issues with seat selection. The API returns 'Some seats are already booked' error even for seats that should be available. This suggests a problem with the seat availability tracking or database queries."
 
 frontend:
   - task: "Search Form Component"
