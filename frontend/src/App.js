@@ -60,6 +60,7 @@ import { AffiliateProgram } from './AffiliateProgram';
 import { TicketManagement } from './TicketManagement';
 import { PaymentManagement } from './PaymentManagement';
 import { AdminManagement } from './AdminManagement';
+import { SmartTrackingAI, QuickBuyWidget } from './SmartTrackingAI';
 
 // Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
