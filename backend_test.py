@@ -546,6 +546,829 @@ class BusTicketAPITest(unittest.TestCase):
         data = response.json()
         self.assertIsInstance(data, list)
         print(f"✅ User bookings retrieval successful: Found {len(data)} bookings for new user")
+        
+    # New User Profile Feature Tests
+    def test_11_user_credit(self):
+        """Test user credit endpoint"""
+        # Register and login a new user for this test
+        test_email = f"credit_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Credit",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Get user credit
+        response = requests.get(
+            f"{self.base_url}/user/credit",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("balance", data)
+        self.assertIn("transactions", data)
+        self.assertIsInstance(data["transactions"], list)
+        print(f"✅ User credit retrieval successful: Balance = {data['balance']}, Transactions = {len(data['transactions'])}")
+        
+    def test_12_upcoming_bookings(self):
+        """Test upcoming bookings endpoint"""
+        # Register and login a new user for this test
+        test_email = f"upcoming_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Upcoming",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Get upcoming bookings
+        response = requests.get(
+            f"{self.base_url}/bookings/upcoming",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsInstance(data, list)
+        print(f"✅ Upcoming bookings retrieval successful: Found {len(data)} upcoming bookings")
+        
+    def test_13_past_bookings(self):
+        """Test past bookings endpoint"""
+        # Register and login a new user for this test
+        test_email = f"past_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Past",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Get past bookings
+        response = requests.get(
+            f"{self.base_url}/bookings/past",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsInstance(data, list)
+        print(f"✅ Past bookings retrieval successful: Found {len(data)} past bookings")
+        
+    def test_14_user_invite(self):
+        """Test user invite endpoint"""
+        # Register and login a new user for this test
+        test_email = f"invite_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Invite",
+            "last_name": "Test",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Send invite
+        invite_data = {
+            "email": "friend@example.com",
+            "invite_code": "INVITE123"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/user/invite",
+            headers={"Authorization": f"Bearer {token}"},
+            json=invite_data
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("message", data)
+        print(f"✅ User invite successful: {data['message']}")
+        
+    def test_15_update_profile(self):
+        """Test profile update endpoint"""
+        # Register and login a new user for this test
+        test_email = f"profile_update_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Profile",
+            "last_name": "Update",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Update profile
+        updated_profile = {
+            "first_name": "Updated",
+            "last_name": "Profile",
+            "email": test_email,  # Keep the same email to avoid conflicts
+            "phone": "9876543210"
+        }
+        
+        response = requests.put(
+            f"{self.base_url}/user/profile",
+            headers={"Authorization": f"Bearer {token}"},
+            json=updated_profile
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("message", data)
+        print(f"✅ Profile update successful: {data['message']}")
+        
+        # Verify the update by getting the profile
+        profile_response = requests.get(
+            f"{self.base_url}/auth/me",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(profile_response.status_code, 200)
+        profile_data = profile_response.json()
+        self.assertEqual(profile_data["first_name"], updated_profile["first_name"])
+        self.assertEqual(profile_data["last_name"], updated_profile["last_name"])
+        self.assertEqual(profile_data["phone"], updated_profile["phone"])
+        print("✅ Profile update verification successful")
+        
+    def test_16_change_password(self):
+        """Test password change endpoint"""
+        # Register and login a new user for this test
+        test_email = f"password_change_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "OldPassword123!",
+            "first_name": "Password",
+            "last_name": "Change",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login with old password
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Change password
+        password_data = {
+            "current_password": test_user["password"],
+            "new_password": "NewPassword456!"
+        }
+        
+        response = requests.put(
+            f"{self.base_url}/user/change-password",
+            headers={"Authorization": f"Bearer {token}"},
+            json=password_data
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("message", data)
+        print(f"✅ Password change successful: {data['message']}")
+        
+        # Verify by logging in with new password
+        new_login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": password_data["new_password"]
+            }
+        )
+        
+        self.assertEqual(new_login_response.status_code, 200)
+        self.assertIn("access_token", new_login_response.json())
+        print("✅ Login with new password successful")
+        
+    # Affiliate Program Tests
+    def test_17_affiliate_status(self):
+        """Test affiliate status endpoint"""
+        # Register and login a new user for this test
+        test_email = f"affiliate_status_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Affiliate",
+            "last_name": "Status",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Check affiliate status (should be false for new user)
+        response = requests.get(
+            f"{self.base_url}/affiliate/status",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("isAffiliate", data)
+        self.assertFalse(data["isAffiliate"])
+        print("✅ Affiliate status check successful for new user")
+        
+    def test_18_affiliate_register(self):
+        """Test affiliate registration endpoint"""
+        # Register and login a new user for this test
+        test_email = f"affiliate_reg_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Affiliate",
+            "last_name": "Register",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Register as affiliate
+        affiliate_data = {
+            "companyName": "Test Travel Agency",
+            "website": "https://testagency.example.com",
+            "description": "A test travel agency for API testing",
+            "monthlySales": 5000,
+            "marketingChannels": ["Social Media", "Email", "Website"]
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/affiliate/register",
+            headers={"Authorization": f"Bearer {token}"},
+            json=affiliate_data
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("affiliateCode", data)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "pending")
+        print(f"✅ Affiliate registration successful: Code = {data['affiliateCode']}, Status = {data['status']}")
+        
+        # Verify by checking affiliate status
+        status_response = requests.get(
+            f"{self.base_url}/affiliate/status",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(status_response.status_code, 200)
+        status_data = status_response.json()
+        self.assertIn("isAffiliate", status_data)
+        self.assertTrue(status_data["isAffiliate"])
+        self.assertEqual(status_data["affiliateData"]["status"], "pending")
+        print("✅ Affiliate status verification successful")
+        
+    def test_19_affiliate_stats(self):
+        """Test affiliate stats endpoint"""
+        # Register and login a new user for this test
+        test_email = f"affiliate_stats_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Affiliate",
+            "last_name": "Stats",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Register as affiliate first
+        affiliate_data = {
+            "companyName": "Stats Travel Agency",
+            "website": "https://statsagency.example.com",
+            "description": "A test travel agency for stats testing",
+            "monthlySales": 7500,
+            "marketingChannels": ["Social Media", "Email", "Website"]
+        }
+        
+        affiliate_response = requests.post(
+            f"{self.base_url}/affiliate/register",
+            headers={"Authorization": f"Bearer {token}"},
+            json=affiliate_data
+        )
+        self.assertEqual(affiliate_response.status_code, 200)
+        
+        # Get affiliate stats
+        response = requests.get(
+            f"{self.base_url}/affiliate/stats",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("totalEarnings", data)
+        self.assertIn("totalReferrals", data)
+        self.assertIn("conversionRate", data)
+        self.assertIn("monthlyEarnings", data)
+        print(f"✅ Affiliate stats retrieval successful: Total Earnings = {data['totalEarnings']}, Total Referrals = {data['totalReferrals']}")
+        
+    def test_20_affiliate_activity(self):
+        """Test affiliate activity endpoint"""
+        # Register and login a new user for this test
+        test_email = f"affiliate_activity_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Affiliate",
+            "last_name": "Activity",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Register as affiliate first
+        affiliate_data = {
+            "companyName": "Activity Travel Agency",
+            "website": "https://activityagency.example.com",
+            "description": "A test travel agency for activity testing",
+            "monthlySales": 6000,
+            "marketingChannels": ["Social Media", "Email", "Website"]
+        }
+        
+        affiliate_response = requests.post(
+            f"{self.base_url}/affiliate/register",
+            headers={"Authorization": f"Bearer {token}"},
+            json=affiliate_data
+        )
+        self.assertEqual(affiliate_response.status_code, 200)
+        
+        # Get affiliate activity
+        response = requests.get(
+            f"{self.base_url}/affiliate/activity",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsInstance(data, list)
+        if len(data) > 0:
+            self.assertIn("description", data[0])
+            self.assertIn("commission", data[0])
+            self.assertIn("date", data[0])
+        print(f"✅ Affiliate activity retrieval successful: Found {len(data)} activities")
+        
+    # Ticket Management Tests
+    def test_21_ticket_download(self):
+        """Test ticket download endpoint"""
+        # Register and login a new user for this test
+        test_email = f"ticket_download_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Ticket",
+            "last_name": "Download",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Create a booking first
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Search for routes
+        search_data = {
+            "origin": "Phnom Penh",
+            "destination": "Siem Reap",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        search_response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(search_response.status_code, 200)
+        routes = search_response.json()
+        
+        if len(routes) > 0:
+            route_id = routes[0]["id"]
+            
+            # Get seat layout
+            seats_response = requests.get(
+                f"{self.base_url}/seats/{route_id}?date={tomorrow}"
+            )
+            self.assertEqual(seats_response.status_code, 200)
+            seats_data = seats_response.json()
+            
+            # Find an available seat
+            available_seats = [seat["seat_id"] for seat in seats_data["seat_layout"] if seat["is_available"]]
+            
+            if available_seats:
+                booking_data = {
+                    "route_id": route_id,
+                    "selected_seats": [available_seats[0]],
+                    "passenger_details": [
+                        {
+                            "firstName": "Test",
+                            "lastName": "Passenger",
+                            "email": "test@example.com",
+                            "phone": "1234567890"
+                        }
+                    ],
+                    "date": tomorrow
+                }
+                
+                booking_response = requests.post(
+                    f"{self.base_url}/bookings",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=booking_data
+                )
+                
+                self.assertEqual(booking_response.status_code, 200)
+                booking_data = booking_response.json()
+                booking_id = booking_data["id"]
+                
+                # Process payment
+                payment_data = {
+                    "booking_id": booking_id,
+                    "payment_method": "card",
+                    "card_details": {
+                        "cardNumber": "4111111111111111",
+                        "expiryDate": "12/25",
+                        "cvv": "123",
+                        "cardHolderName": "Test User"
+                    }
+                }
+                
+                payment_response = requests.post(
+                    f"{self.base_url}/payments/process",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=payment_data
+                )
+                
+                self.assertEqual(payment_response.status_code, 200)
+                
+                # Now test ticket download
+                response = requests.get(
+                    f"{self.base_url}/tickets/download/{booking_id}",
+                    headers={"Authorization": f"Bearer {token}"}
+                )
+                
+                self.assertEqual(response.status_code, 200)
+                data = response.json()
+                self.assertIn("message", data)
+                self.assertIn("booking_id", data)
+                print(f"✅ Ticket download successful: {data['message']}")
+            else:
+                print("⚠️ Skipping ticket download test as no available seats were found")
+        else:
+            print("⚠️ Skipping ticket download test as no routes were found")
+        
+    def test_22_ticket_send(self):
+        """Test ticket send endpoint"""
+        # Register and login a new user for this test
+        test_email = f"ticket_send_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_user = {
+            "email": test_email,
+            "password": "Test123!",
+            "first_name": "Ticket",
+            "last_name": "Send",
+            "phone": "1234567890"
+        }
+        
+        # Register
+        register_response = requests.post(
+            f"{self.base_url}/auth/register",
+            json=test_user
+        )
+        self.assertEqual(register_response.status_code, 200)
+        
+        # Login
+        login_response = requests.post(
+            f"{self.base_url}/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"]
+            }
+        )
+        self.assertEqual(login_response.status_code, 200)
+        token = login_response.json()["access_token"]
+        
+        # Create a booking first
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Search for routes
+        search_data = {
+            "origin": "Phnom Penh",
+            "destination": "Siem Reap",
+            "date": tomorrow,
+            "passengers": 1,
+            "transport_type": "bus"
+        }
+        
+        search_response = requests.post(
+            f"{self.base_url}/search",
+            json=search_data
+        )
+        self.assertEqual(search_response.status_code, 200)
+        routes = search_response.json()
+        
+        if len(routes) > 0:
+            route_id = routes[0]["id"]
+            
+            # Get seat layout
+            seats_response = requests.get(
+                f"{self.base_url}/seats/{route_id}?date={tomorrow}"
+            )
+            self.assertEqual(seats_response.status_code, 200)
+            seats_data = seats_response.json()
+            
+            # Find an available seat
+            available_seats = [seat["seat_id"] for seat in seats_data["seat_layout"] if seat["is_available"]]
+            
+            if available_seats:
+                booking_data = {
+                    "route_id": route_id,
+                    "selected_seats": [available_seats[0]],
+                    "passenger_details": [
+                        {
+                            "firstName": "Test",
+                            "lastName": "Passenger",
+                            "email": "test@example.com",
+                            "phone": "1234567890"
+                        }
+                    ],
+                    "date": tomorrow
+                }
+                
+                booking_response = requests.post(
+                    f"{self.base_url}/bookings",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=booking_data
+                )
+                
+                self.assertEqual(booking_response.status_code, 200)
+                booking_data = booking_response.json()
+                booking_id = booking_data["id"]
+                
+                # Process payment
+                payment_data = {
+                    "booking_id": booking_id,
+                    "payment_method": "card",
+                    "card_details": {
+                        "cardNumber": "4111111111111111",
+                        "expiryDate": "12/25",
+                        "cvv": "123",
+                        "cardHolderName": "Test User"
+                    }
+                }
+                
+                payment_response = requests.post(
+                    f"{self.base_url}/payments/process",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=payment_data
+                )
+                
+                self.assertEqual(payment_response.status_code, 200)
+                
+                # Now test ticket send
+                send_data = {
+                    "booking_id": booking_id,
+                    "recipients": ["friend@example.com", "family@example.com"],
+                    "method": "email",
+                    "message": "Here's your ticket for our trip!"
+                }
+                
+                response = requests.post(
+                    f"{self.base_url}/tickets/send",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=send_data
+                )
+                
+                self.assertEqual(response.status_code, 200)
+                data = response.json()
+                self.assertIn("message", data)
+                print(f"✅ Ticket send successful: {data['message']}")
+            else:
+                print("⚠️ Skipping ticket send test as no available seats were found")
+        else:
+            print("⚠️ Skipping ticket send test as no routes were found")
+        
+    # Enhanced Search Tests
+    def test_23_search_by_transport_type(self):
+        """Test search by transport type endpoint"""
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Test different transport types
+        transport_types = ["bus", "ferry", "private_taxi", "airport_shuttle"]
+        
+        for transport_type in transport_types:
+            search_data = {
+                "origin": "Phnom Penh",
+                "destination": "Siem Reap",
+                "date": tomorrow,
+                "passengers": 1
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/search/{transport_type}",
+                json=search_data
+            )
+            
+            self.assertEqual(response.status_code, 200)
+            data = response.json()
+            self.assertIsInstance(data, list)
+            
+            # For ferry, use a route that's likely to have ferry service
+            if transport_type == "ferry" and len(data) == 0:
+                ferry_search = {
+                    "origin": "Sihanoukville",
+                    "destination": "Koh Rong",
+                    "date": tomorrow,
+                    "passengers": 1
+                }
+                
+                ferry_response = requests.post(
+                    f"{self.base_url}/search/ferry",
+                    json=ferry_search
+                )
+                
+                self.assertEqual(ferry_response.status_code, 200)
+                ferry_data = ferry_response.json()
+                print(f"✅ Ferry search successful: Found {len(ferry_data)} routes")
+            else:
+                print(f"✅ {transport_type.capitalize()} search successful: Found {len(data)} routes")
 
 def run_tests():
     """Run all tests in order"""
