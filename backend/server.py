@@ -684,8 +684,8 @@ async def get_booking_details(booking_id: str, current_user: dict = Depends(get_
                 "duration": "Unknown"
             }
         
-        return booking
-    except ObjectId.InvalidId:
+        return jsonable_encoder(booking, custom_encoder={ObjectId: str})
+    except InvalidId:
         raise HTTPException(status_code=400, detail="Invalid booking ID")
     except Exception as e:
         logger.error(f"Error fetching booking details: {e}")
