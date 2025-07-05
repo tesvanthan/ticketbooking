@@ -430,6 +430,7 @@ def run_tests():
     test_suite.addTest(BusTicketAPITest('test_02_register_user'))
     test_suite.addTest(BusTicketAPITest('test_03_login_user'))
     test_suite.addTest(BusTicketAPITest('test_04_get_user_profile'))
+    test_suite.addTest(BusTicketAPITest('test_04a_auth_error_handling'))
     test_suite.addTest(BusTicketAPITest('test_05_search_routes'))
     test_suite.addTest(BusTicketAPITest('test_06_get_suggestions'))
     test_suite.addTest(BusTicketAPITest('test_07_get_popular_destinations'))
@@ -438,8 +439,40 @@ def run_tests():
     test_suite.addTest(BusTicketAPITest('test_10_get_user_bookings'))
     
     runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(test_suite)
+    return runner.run(test_suite)
+
+def run_specific_tests(test_names):
+    """Run specific tests by name"""
+    test_suite = unittest.TestSuite()
+    for test_name in test_names:
+        test_suite.addTest(BusTicketAPITest(test_name))
+    
+    runner = unittest.TextTestRunner(verbosity=2)
+    return runner.run(test_suite)
 
 if __name__ == "__main__":
     print("🚀 Starting BusTicket API Tests...")
-    run_tests()
+    
+    # Run specific tests based on command line arguments
+    import sys
+    if len(sys.argv) > 1:
+        test_names = sys.argv[1:]
+        print(f"Running specific tests: {', '.join(test_names)}")
+        result = run_specific_tests(test_names)
+    else:
+        # Run all tests
+        result = run_tests()
+    
+    # Print summary
+    print("\n=== Test Summary ===")
+    print(f"Tests run: {result.testsRun}")
+    print(f"Errors: {len(result.errors)}")
+    print(f"Failures: {len(result.failures)}")
+    
+    # Exit with appropriate status code
+    if result.wasSuccessful():
+        print("✅ All tests passed!")
+        sys.exit(0)
+    else:
+        print("❌ Some tests failed!")
+        sys.exit(1)
