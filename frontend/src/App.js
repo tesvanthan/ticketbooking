@@ -94,7 +94,13 @@ const Header = ({ activeTab, setActiveTab }) => {
               <Link to="/" className="text-gray-700 hover:text-orange-500 transition-colors">Home</Link>
               <Link to="/routes" className="text-gray-700 hover:text-orange-500 transition-colors">Routes</Link>
               {user && (
-                <Link to="/my-bookings" className="text-gray-700 hover:text-orange-500 transition-colors">My Bookings</Link>
+                <>
+                  <Link to="/my-bookings" className="text-gray-700 hover:text-orange-500 transition-colors">My Bookings</Link>
+                  <Link to="/management" className="text-gray-700 hover:text-orange-500 transition-colors flex items-center space-x-1">
+                    <Cog className="w-4 h-4" />
+                    <span>Management</span>
+                  </Link>
+                </>
               )}
               <Link to="/about" className="text-gray-700 hover:text-orange-500 transition-colors">About</Link>
               <Link to="/contact" className="text-gray-700 hover:text-orange-500 transition-colors">Contact</Link>
