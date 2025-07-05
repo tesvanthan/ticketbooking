@@ -289,9 +289,9 @@ const AffiliateDashboard = ({ affiliateData }) => {
 
   const fetchAffiliateLinks = async () => {
     const links = [
-      { id: 1, name: 'Homepage', url: `https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com?ref=${affiliateData.affiliateCode}`, clicks: 45 },
-      { id: 2, name: 'Search Bus', url: `https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com/search/bus?ref=${affiliateData.affiliateCode}`, clicks: 32 },
-      { id: 3, name: 'Ferry Booking', url: `https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com/search/ferry?ref=${affiliateData.affiliateCode}`, clicks: 18 }
+      { id: 1, name: 'Homepage', url: `https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com?ref=${affiliateData.affiliateCode}`, clicks: 45 },
+      { id: 2, name: 'Search Bus', url: `https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com/search/bus?ref=${affiliateData.affiliateCode}`, clicks: 32 },
+      { id: 3, name: 'Ferry Booking', url: `https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com/search/ferry?ref=${affiliateData.affiliateCode}`, clicks: 18 }
     ];
     setAffiliateLinks(links);
   };

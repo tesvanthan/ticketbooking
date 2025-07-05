@@ -15,7 +15,7 @@ class BusTicketAPITest(unittest.TestCase):
     def setUp(self):
         """Set up test environment before each test"""
         # Get the backend URL from environment variables
-        backend_url = os.getenv('REACT_APP_BACKEND_URL', 'https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com')
+        backend_url = os.getenv('REACT_APP_BACKEND_URL', 'https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com')
         self.base_url = f"{backend_url}/api"
         print(f"Using API base URL: {self.base_url}")
         

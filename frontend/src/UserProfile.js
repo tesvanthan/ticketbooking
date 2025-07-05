@@ -644,7 +644,7 @@ const ChangePassword = () => {
 
 // Embed Widget Component
 const EmbedWidget = () => {
-  const [widgetCode] = useState(`<iframe src="https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com/widget" width="400" height="600" frameborder="0"></iframe>`);
+  const [widgetCode] = useState(`<iframe src="https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com/widget" width="400" height="600" frameborder="0"></iframe>`);
   const [copied, setCopied] = useState(false);
 
   const copyWidgetCode = () => {
@@ -693,7 +693,7 @@ const EmbedWidget = () => {
 
 // Banner Link Component
 const BannerLink = () => {
-  const [bannerCode] = useState(`<a href="https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com"><img src="https://463918e2-1f42-4cce-be47-8127013d3681.preview.emergentagent.com/banner.png" alt="Book Bus Tickets" /></a>`);
+  const [bannerCode] = useState(`<a href="https://4eb98124-cdcf-45e0-bb77-b91b8274688c.preview.emergentagent.com/banner.png" alt="Book Bus Tickets" /></a>`);
   const [copied, setCopied] = useState(false);
 
   const copyBannerCode = () => {
