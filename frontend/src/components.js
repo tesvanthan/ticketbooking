@@ -451,18 +451,6 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
       setError('');
     }
   }, [searchResults]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-        <span className="ml-2 text-gray-600">Searching for routes...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
       <div className="text-center py-16">
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <p className="text-red-600 mb-4">{error}</p>
