@@ -61,6 +61,15 @@ import { TicketManagement } from './TicketManagement';
 import { PaymentManagement } from './PaymentManagement';
 import { AdminManagement } from './AdminManagement';
 import { SmartTrackingAI, QuickBuyWidget } from './SmartTrackingAI';
+import { SmartNotificationSystem } from './SmartNotificationSystem';
+import { 
+  RouteManagement, 
+  AgentManagement, 
+  SmartSeatManagement,
+  FlightOperationManagement,
+  TaxiOperationManagement,
+  FerryOperationManagement
+} from './OperationManagement';
 
 // Enhanced Header Component with Authentication
 const Header = ({ activeTab, setActiveTab }) => {
