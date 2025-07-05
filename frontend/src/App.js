@@ -1103,7 +1103,11 @@ const BookingPage = () => {
               Back to Seat Selection
             </button>
           </div>
-          <Payment bookingData={bookingData} onPaymentSuccess={handlePaymentSuccess} />
+          <PaymentManagement 
+            booking={bookingData} 
+            onPaymentComplete={handlePaymentSuccess}
+            onCancel={() => setCurrentStep('seats')}
+          />
         </div>
       )}
 
