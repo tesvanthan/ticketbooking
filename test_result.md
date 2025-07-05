@@ -310,7 +310,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -320,6 +320,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Tested the fixed endpoints but they still return 500 errors. The error logs show an issue with ObjectId serialization: 'ObjectId' object is not iterable. The fix for route_id ObjectId conversion is not working correctly."
+      - working: false
+        agent: "testing"
+        comment: "Tested the updated endpoints with jsonable_encoder and custom_encoder={ObjectId: str}. The endpoints still return 500 errors. The error logs show: 'AttributeError: type object 'ObjectId' has no attribute 'InvalidId''. The issue is in the error handling code in get_booking_details function."
 
   - task: "Admin Management Core APIs"
     implemented: true
