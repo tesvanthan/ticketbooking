@@ -882,18 +882,36 @@ async def get_past_bookings(current_user: dict = Depends(get_current_user)):
         booking["id"] = str(booking["_id"])
         # Get route details
         if "route_id" in booking:
-            route_parts = booking["route_id"].split("-")
-            if len(route_parts) > 0:
-                try:
-                    route = await db.routes.find_one({"_id": ObjectId(route_parts[0])})
+            try:
+                route_parts = booking["route_id"].split("-")
+                if len(route_parts) > 0:
+                    # Handle both ObjectId and string route IDs
+                    route_id = route_parts[0]
+                    if len(route_id) == 24:  # Standard ObjectId length
+                        route = await db.routes.find_one({"_id": ObjectId(route_id)})
+                    else:
+                        route = await db.routes.find_one({"id": route_id})
+                    
                     if route:
                         booking["route_details"] = {
-                            "origin": route["origin"],
-                            "destination": route["destination"],
-                            "duration": route["duration"]
+                            "origin": route.get("origin", "Unknown"),
+                            "destination": route.get("destination", "Unknown"),
+                            "duration": route.get("duration", "Unknown")
                         }
-                except:
-                    pass
+                    else:
+                        # If route not found, create mock route details
+                        booking["route_details"] = {
+                            "origin": "Unknown",
+                            "destination": "Unknown",
+                            "duration": "Unknown"
+                        }
+            except Exception as e:
+                logger.error(f"Error getting route details for booking {booking['id']}: {str(e)}")
+                booking["route_details"] = {
+                    "origin": "Unknown",
+                    "destination": "Unknown",
+                    "duration": "Unknown"
+                }
     
     return bookings
 
