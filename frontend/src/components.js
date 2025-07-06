@@ -1063,18 +1063,27 @@ export const BookingConfirmation = ({ paymentData, bookingData }) => {
   };
 
   const handleDownloadTicket = () => {
-    // Simulate ticket download
+    // Simulate ticket download with comprehensive ticket information
     const ticketData = {
       booking_reference: bookingData.booking_reference,
+      order_id: bookingData.order_id,
+      ticket_numbers: bookingData.ticket_numbers || [],
       transaction_id: paymentData.transaction_id,
       seats: bookingData.seats,
-      total_price: bookingData.total_price
+      total_price: bookingData.total_price,
+      booking_date: new Date().toISOString(),
+      travel_date: bookingData.date || new Date().toISOString(),
+      status: bookingData.status || 'confirmed',
+      qr_codes: bookingData.ticket_numbers ? 
+        bookingData.ticket_numbers.map((ticketNum, index) => 
+          `BMB-${bookingData.booking_reference}-${ticketNum}-${bookingData.seats[index]}`
+        ) : []
     };
     
     const dataStr = JSON.stringify(ticketData, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    const exportFileDefaultName = `ticket-${bookingData.booking_reference}.json`;
+    const exportFileDefaultName = `ticket-${bookingData.booking_reference}-${bookingData.order_id}.json`;
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
