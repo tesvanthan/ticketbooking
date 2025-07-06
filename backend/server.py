@@ -459,9 +459,21 @@ async def get_seat_layout(route_schedule_id: str, current_user: dict = Depends(g
             }
         
         # Generate seat layout based on vehicle type
-        def generate_seat_layout(vehicle_type, capacity=45):
+        async def generate_seat_layout(vehicle_type, capacity=45, route_id=None, schedule_date=None):
             seats = []
             rows = capacity // 4 + (1 if capacity % 4 else 0)
+            
+            # Get actually booked seats from database
+            booked_seats = []
+            if route_id and schedule_date:
+                existing_bookings = await db.bookings.find({
+                    "route_id": route_id,
+                    "date": schedule_date,
+                    "status": {"$in": ["confirmed", "paid"]}
+                }).to_list(length=1000)
+                
+                for booking in existing_bookings:
+                    booked_seats.extend(booking.get("seats", []))
             
             seat_id = 1
             for row in range(1, rows + 1):
@@ -469,11 +481,13 @@ async def get_seat_layout(route_schedule_id: str, current_user: dict = Depends(g
                     if seat_id > capacity:
                         break
                     
-                    # Simulate some occupied seats
-                    is_occupied = seat_id in [3, 7, 12, 18, 23, 34, 41]
+                    seat_identifier = f"{row}{col}"
+                    
+                    # Check if this specific seat is actually booked
+                    is_occupied = seat_identifier in booked_seats
                     
                     seat = {
-                        "id": f"{row}{col}",
+                        "id": seat_identifier,
                         "row": row,
                         "column": col,
                         "seat_number": seat_id,
@@ -489,8 +503,13 @@ async def get_seat_layout(route_schedule_id: str, current_user: dict = Depends(g
             
             return seats
         
-        # Generate seat layout
-        seats = generate_seat_layout(route.get("vehicle_type", "Standard Bus"), route.get("capacity", 45))
+        # Generate seat layout with actual booking data
+        seats = await generate_seat_layout(
+            route.get("vehicle_type", "Standard Bus"), 
+            route.get("capacity", 45),
+            route_schedule_id,
+            route.get("date")
+        )
         
         # Return seat layout with route information
         return {
