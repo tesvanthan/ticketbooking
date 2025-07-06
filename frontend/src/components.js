@@ -609,7 +609,15 @@ export const SeatSelection = ({ route, searchData, onConfirmBooking }) => {
       if (response.ok) {
         const data = await response.json();
         // Handle both possible response formats
-        const seats = data.seat_layout || data.seats || data.layout || [];
+        let seats = data.seats || data.seat_layout || data.layout || [];
+        
+        // Convert backend seat format to frontend format if needed
+        seats = seats.map(seat => ({
+          ...seat,
+          seat_id: seat.seat_id || seat.id || `${seat.row}${seat.column}`,
+          is_available: seat.is_available !== undefined ? seat.is_available : (seat.status === "available")
+        }));
+        
         setSeatLayout(seats);
         
         if (seats.length === 0) {
