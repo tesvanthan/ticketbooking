@@ -1150,12 +1150,14 @@ const BookingPage = () => {
 
   const handleConfirmBooking = async (bookingDetails) => {
     try {
+      console.log('Starting booking process with details:', bookingDetails);
       const { token } = useAuth();
       if (!token) {
         alert('Please login to continue');
         return;
       }
       
+      console.log('Making booking API call...');
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/bookings`, {
         method: 'POST',
         headers: {
@@ -1165,12 +1167,16 @@ const BookingPage = () => {
         body: JSON.stringify(bookingDetails)
       });
 
+      console.log('Booking API response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('Booking successful, data:', data);
         setBookingData(data);
         setCurrentStep('payment');
+        console.log('Step changed to payment');
       } else {
         const errorData = await response.json();
+        console.error('Booking failed:', errorData);
         alert(`Failed to create booking: ${errorData.detail || 'Unknown error'}`);
       }
     } catch (error) {
