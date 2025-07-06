@@ -938,8 +938,131 @@ async def calculate_dynamic_pricing(request_data: dict, current_user: dict = Dep
         "confidence": round(random.uniform(0.7, 0.95), 2)
     }
 
-# Popular destinations endpoint
-@app.get("/api/destinations/popular")
+# Ticket generation and download endpoints
+@app.get("/api/tickets/download/{booking_id}")
+async def download_ticket(booking_id: str, current_user: dict = Depends(get_current_user)):
+    """Generate and download ticket PDF"""
+    try:
+        # Find the booking
+        booking = await db.bookings.find_one({
+            "_id": ObjectId(booking_id),
+            "user_id": str(current_user["_id"])
+        })
+        
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # Generate ticket content
+        ticket_content = generate_ticket_content(booking)
+        
+        # In a real implementation, you would generate a PDF here
+        # For now, we'll return the ticket content as text
+        from io import StringIO
+        import json
+        
+        ticket_data = {
+            "ticket_type": "Bus E-Ticket",
+            "booking_reference": booking.get("booking_reference"),
+            "order_id": booking.get("order_id"),
+            "ticket_numbers": booking.get("ticket_numbers", []),
+            "tickets": booking.get("tickets", []),
+            "route_info": {
+                "origin": "Phnom Penh",
+                "destination": "Siem Reap", 
+                "date": booking.get("date"),
+                "departure_time": "06:00",
+                "arrival_time": "11:45",
+                "duration": "5h 45m"
+            },
+            "passenger_details": booking.get("passenger_details", []),
+            "seats": booking.get("seats", []),
+            "total_price": booking.get("total_price"),
+            "status": booking.get("status"),
+            "qr_codes": [f"BMB-{booking.get('booking_reference')}-{ticket_num}" 
+                        for ticket_num in booking.get("ticket_numbers", [])],
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+        # Convert to JSON string for download
+        ticket_json = json.dumps(ticket_data, indent=2)
+        
+        # Return as downloadable content
+        from fastapi.responses import Response
+        return Response(
+            content=ticket_json,
+            media_type="application/json",
+            headers={"Content-Disposition": f"attachment; filename=ticket-{booking['booking_reference']}-{booking.get('order_id', 'unknown')}.json"}
+        )
+        
+    except Exception as e:
+        logger.error(f"Error generating ticket: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate ticket")
+
+def generate_ticket_content(booking):
+    """Generate formatted ticket content"""
+    content = f"""
+    ================================
+    BUSTICKET.COM E-TICKET
+    ================================
+    
+    Booking Reference: {booking.get('booking_reference')}
+    Order ID: {booking.get('order_id', 'N/A')}
+    Date: {booking.get('date')}
+    Status: {booking.get('status', 'confirmed').upper()}
+    
+    ================================
+    ROUTE INFORMATION
+    ================================
+    
+    From: Phnom Penh (06:00)
+    To: Siem Reap (11:45)
+    Duration: 5h 45m
+    
+    ================================
+    TICKET DETAILS
+    ================================
+    
+    Seats: {', '.join(booking.get('seats', []))}
+    Total Price: ${booking.get('total_price', 0)}
+    
+    """
+    
+    # Add individual ticket numbers
+    if booking.get('ticket_numbers'):
+        content += "\n    INDIVIDUAL TICKET NUMBERS:\n"
+        content += "    " + "="*30 + "\n"
+        for i, ticket_num in enumerate(booking.get('ticket_numbers', [])):
+            seat = booking.get('seats', [])[i] if i < len(booking.get('seats', [])) else f"Seat {i+1}"
+            content += f"    {seat}: {ticket_num}\n"
+    
+    # Add passenger details with ticket numbers
+    if booking.get('passenger_details'):
+        content += "\n    PASSENGER DETAILS:\n"
+        content += "    " + "="*30 + "\n"
+        for i, passenger in enumerate(booking.get('passenger_details', [])):
+            ticket_num = booking.get('ticket_numbers', [])[i] if i < len(booking.get('ticket_numbers', [])) else 'N/A'
+            content += f"""
+    Passenger {i+1}:
+    Name: {passenger.get('firstName', '')} {passenger.get('lastName', '')}
+    Email: {passenger.get('email', '')}
+    Phone: {passenger.get('phone', 'N/A')}
+    Ticket Number: {ticket_num}
+    Seat: {booking.get('seats', [])[i] if i < len(booking.get('seats', [])) else 'N/A'}
+    """
+    
+    content += f"""
+    
+    ================================
+    QR CODE FOR BOARDING
+    ================================
+    
+    BMB-{booking.get('booking_reference')}-{booking.get('order_id', 'unknown')}
+    
+    Present this ticket at the boarding gate
+    ================================
+    """
+    
+    return content
 async def get_popular_destinations():
     """Get popular destinations"""
     destinations = await db.routes.aggregate([
