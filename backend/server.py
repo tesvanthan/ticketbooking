@@ -503,12 +503,21 @@ async def get_seat_layout(route_schedule_id: str, current_user: dict = Depends(g
             
             return seats
         
+        # Get schedule date from route schedule ID
+        schedule_date = None
+        try:
+            schedule_parts = route_schedule_id.split("-")
+            if len(schedule_parts) >= 3:
+                schedule_date = schedule_parts[2]
+        except:
+            pass
+
         # Generate seat layout with actual booking data
         seats = await generate_seat_layout(
             route.get("vehicle_type", "Standard Bus"), 
             route.get("capacity", 45),
             route_schedule_id,
-            route.get("date")
+            schedule_date
         )
         
         # Return seat layout with route information
