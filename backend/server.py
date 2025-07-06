@@ -881,39 +881,29 @@ async def create_vehicle(vehicle_data: dict, current_user: dict = Depends(get_cu
         logger.error(f"Error creating vehicle: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# AI dynamic pricing endpoint
+# AI dynamic pricing endpoint  
 @app.post("/api/management/ai/dynamic-pricing")
-async def get_dynamic_pricing(pricing_data: dict, current_user: dict = Depends(get_current_user)):
-    """Get AI-powered dynamic pricing suggestions"""
-    try:
-        # Mock AI pricing logic - no required parameters
-        base_price = pricing_data.get("base_price", 15.0)
-        demand_factor = pricing_data.get("demand_factor", 1.0)
-        
-        # Simple dynamic pricing calculation
-        suggested_price = base_price * demand_factor
-        
-        # Add some intelligence based on time and demand
-        import random
-        adjustment = random.uniform(0.8, 1.2)
-        final_price = suggested_price * adjustment
-        
-        return {
-            "base_price": base_price,
-            "suggested_price": round(final_price, 2),
-            "demand_factor": demand_factor,
-            "price_change": round(((final_price - base_price) / base_price) * 100, 1),
-            "confidence": round(random.uniform(0.7, 0.95), 2)
-        }
-    except Exception as e:
-        logger.error(f"Error calculating dynamic pricing: {str(e)}")
-        return {
-            "base_price": 15.0,
-            "suggested_price": 15.0,
-            "demand_factor": 1.0,
-            "price_change": 0.0,
-            "confidence": 0.8
-        }
+async def calculate_dynamic_pricing(request_data: dict, current_user: dict = Depends(get_current_user)):
+    """Calculate AI-powered dynamic pricing suggestions"""
+    # Mock AI pricing logic - no required parameters
+    base_price = request_data.get("base_price", 15.0)
+    demand_factor = request_data.get("demand_factor", 1.0)
+    
+    # Simple dynamic pricing calculation
+    suggested_price = base_price * demand_factor
+    
+    # Add some intelligence based on time and demand
+    import random
+    adjustment = random.uniform(0.8, 1.2)
+    final_price = suggested_price * adjustment
+    
+    return {
+        "base_price": base_price,
+        "suggested_price": round(final_price, 2),
+        "demand_factor": demand_factor,
+        "price_change": round(((final_price - base_price) / base_price) * 100, 1),
+        "confidence": round(random.uniform(0.7, 0.95), 2)
+    }
 
 # Popular destinations endpoint
 @app.get("/api/destinations/popular")
