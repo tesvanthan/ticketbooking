@@ -570,13 +570,7 @@ export const AdminManagement = () => {
           <div className="p-6">
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'buses' && <BusManagement />}
-            {activeTab === 'routes' && (
-              <div className="text-center py-16">
-                <Route className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Route Management</h3>
-                <p className="text-gray-600">Manage bus routes, schedules, and pricing</p>
-              </div>
-            )}
+            {activeTab === 'routes' && <RouteManagement />}
             {activeTab === 'seats' && (
               <div className="text-center py-16">
                 <Square className="w-16 h-16 text-gray-400 mx-auto mb-4" />
