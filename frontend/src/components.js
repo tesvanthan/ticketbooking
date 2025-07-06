@@ -546,7 +546,7 @@ export const SearchResults = ({ searchData, searchResults = [], loading = false,
                 <span className="font-medium">{route.available_seats}</span> seats available
               </div>
               <button
-                onClick={() => onSelectRoute(route.id)}
+                onClick={() => onSelectRoute(route)}
                 className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold"
               >
                 Select Seats
