@@ -1151,7 +1151,7 @@ const BookingPage = () => {
   const handleConfirmBooking = async (bookingDetails) => {
     try {
       console.log('Starting booking process with details:', bookingDetails);
-      const { token } = useAuth();
+      
       if (!token) {
         alert('Please login to continue');
         return;
