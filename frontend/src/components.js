@@ -1102,6 +1102,10 @@ export const BookingConfirmation = ({ paymentData, bookingData }) => {
                 <span className="font-medium">{bookingData.booking_reference}</span>
               </div>
               <div className="flex justify-between">
+                <span>Order ID:</span>
+                <span className="font-medium">{bookingData.order_id}</span>
+              </div>
+              <div className="flex justify-between">
                 <span>Transaction ID:</span>
                 <span className="font-medium">{paymentData.transaction_id}</span>
               </div>
@@ -1109,7 +1113,18 @@ export const BookingConfirmation = ({ paymentData, bookingData }) => {
                 <span>Seats:</span>
                 <span>{bookingData.seats.join(', ')}</span>
               </div>
-              <div className="flex justify-between">
+              {bookingData.ticket_numbers && bookingData.ticket_numbers.length > 0 && (
+                <div className="border-t pt-2 mt-2">
+                  <div className="text-xs text-gray-600 mb-1">Ticket Numbers:</div>
+                  {bookingData.ticket_numbers.map((ticketNum, index) => (
+                    <div key={index} className="flex justify-between text-xs">
+                      <span>Seat {bookingData.seats[index]}:</span>
+                      <span className="font-mono font-medium">{ticketNum}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex justify-between border-t pt-2">
                 <span>Total Amount:</span>
                 <span className="font-medium text-green-600">${bookingData.total_price}</span>
               </div>
