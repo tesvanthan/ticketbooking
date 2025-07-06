@@ -426,7 +426,7 @@ frontend:
 
   - task: "Frontend-Backend Communication"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/components.js"
     stuck_count: 2
     priority: "high"
@@ -441,6 +441,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "Additional testing confirms frontend-backend communication issues persist. API calls are being made correctly to the backend, but the UI is not updating with the response data. The SearchResults component in components.js is not properly rendering the results received from the backend."
+      - working: true
+        agent: "testing"
+        comment: "Latest testing shows that frontend-backend communication is now working correctly. Search results are properly displayed, and the seat selection page loads successfully after clicking 'Select Seats'. The UI is correctly rendering data received from the backend."
 
   - task: "QuickBuy Widget"
     implemented: true
