@@ -429,6 +429,7 @@ export const TicketManagement = () => {
         <div class="header">
           <h1>BusTicket E-Ticket</h1>
           <p>Booking Reference: ${booking.booking_reference}</p>
+          ${booking.order_id ? `<p>Order ID: ${booking.order_id}</p>` : ''}
         </div>
         
         <div class="route">
@@ -448,17 +449,31 @@ export const TicketManagement = () => {
         
         <div class="details">
           <div><strong>Date:</strong> ${booking.date}</div>
-          <div><strong>Seats:</strong> ${booking.seats.join(', ')}</div>
+          <div><strong>Seats:</strong> ${booking.seats ? booking.seats.join(', ') : 'N/A'}</div>
           <div><strong>Total Price:</strong> $${booking.total_price}</div>
           <div><strong>Status:</strong> ${booking.status}</div>
         </div>
         
-        ${booking.passenger_details ? `
+        ${booking.ticket_numbers && booking.ticket_numbers.length > 0 ? `
+          <div class="ticket-numbers">
+            <h3>Individual Ticket Numbers:</h3>
+            ${booking.ticket_numbers.map((ticketNum, index) => `
+              <div class="ticket-item">
+                <strong>Seat ${booking.seats ? booking.seats[index] : index + 1}:</strong> ${ticketNum}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${booking.passenger_details && booking.passenger_details.length > 0 ? `
           <div>
             <h3>Passenger Details</h3>
-            ${booking.passenger_details.map(p => `
-              <p><strong>${p.firstName} ${p.lastName}</strong><br>
-              ${p.email} ${p.phone ? `<br>${p.phone}` : ''}</p>
+            ${booking.passenger_details.map((p, index) => `
+              <div class="passenger-item">
+                <p><strong>${p.firstName} ${p.lastName}</strong><br>
+                ${p.email} ${p.phone ? `<br>${p.phone}` : ''}<br>
+                ${booking.ticket_numbers && booking.ticket_numbers[index] ? `Ticket: ${booking.ticket_numbers[index]}` : ''}</p>
+              </div>
             `).join('')}
           </div>
         ` : ''}
