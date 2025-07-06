@@ -111,13 +111,26 @@ const TicketCard = ({ booking, onPrint, onSend, onDownload }) => {
         {/* Passenger Details */}
         {booking.passenger_details && booking.passenger_details.length > 0 && (
           <div className="mb-6">
-            <h4 className="font-semibold text-gray-800 mb-2">Passenger Details</h4>
+            <h4 className="font-semibold text-gray-800 mb-2">Passenger Details & Ticket Numbers</h4>
             <div className="space-y-2">
               {booking.passenger_details.map((passenger, index) => (
                 <div key={index} className="bg-gray-50 rounded p-3">
-                  <div className="font-medium">{passenger.firstName} {passenger.lastName}</div>
-                  <div className="text-sm text-gray-600">{passenger.email}</div>
-                  {passenger.phone && <div className="text-sm text-gray-600">{passenger.phone}</div>}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-medium">{passenger.firstName} {passenger.lastName}</div>
+                      <div className="text-sm text-gray-600">{passenger.email}</div>
+                      {passenger.phone && <div className="text-sm text-gray-600">{passenger.phone}</div>}
+                      <div className="text-sm text-gray-600">Seat: {booking.seats ? booking.seats[index] : 'N/A'}</div>
+                    </div>
+                    <div className="text-right">
+                      {booking.ticket_numbers && booking.ticket_numbers[index] && (
+                        <>
+                          <div className="text-xs text-gray-500">Ticket Number</div>
+                          <div className="font-mono text-sm font-medium">{booking.ticket_numbers[index]}</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
