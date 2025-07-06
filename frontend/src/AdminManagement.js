@@ -33,7 +33,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useAuth } from './components';
-import AffiliateProgram from './AffiliateProgram';
+import { AffiliateProgram } from './AffiliateProgram';
 
 // Permission Management Component
 const PermissionManager = ({ userType, permissions, onPermissionChange }) => {
