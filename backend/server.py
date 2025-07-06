@@ -102,6 +102,8 @@ class BookingRequest(BaseModel):
 class BookingResponse(BaseModel):
     id: str
     booking_reference: str
+    order_id: str
+    ticket_numbers: List[str]
     route_id: str
     seats: List[str]
     total_price: float
