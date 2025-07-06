@@ -489,6 +489,7 @@ export const AdminManagement = () => {
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'buses', label: 'Bus Management', icon: Bus },
     { id: 'routes', label: 'Route Management', icon: MapPin },
+    { id: 'agents', label: 'Agent Management', icon: UserCheck },
     { id: 'seats', label: 'Seat Management', icon: Square },
     { id: 'payments', label: 'Payment Management', icon: CreditCard },
     { id: 'affiliates', label: 'Affiliate Management', icon: DollarSign },
