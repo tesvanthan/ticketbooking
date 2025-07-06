@@ -504,6 +504,21 @@ frontend:
       - working: false
         agent: "testing"
         comment: "Payment system is implemented but requires authentication. When attempting to access the payment page directly, users are redirected to the login page. After login attempts, the payment page does not load properly, suggesting authentication or routing issues."
+      - working: false
+        agent: "testing"
+        comment: "Tested the complete booking flow from search to payment. Successfully performed search, logged in, selected seats, and filled passenger details. The 'Continue to Payment' button is enabled and clickable, but clicking it does not navigate to the payment page. The test timed out waiting for the payment page to load. This suggests an issue with the payment page navigation or rendering."
+
+  - task: "Seat Selection"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Seat selection functionality is working correctly. The seat layout loads properly, available seats can be selected, and passenger details form appears when seats are selected. The UI correctly shows selected seats and updates the trip summary with the selected seat information."
 
 metadata:
   created_by: "main_agent"
