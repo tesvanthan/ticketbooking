@@ -566,6 +566,7 @@ export const SeatSelection = ({ route, searchData, onConfirmBooking }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [passengerDetails, setPassengerDetails] = useState([]);
+  const { token } = useAuth(); // Get authentication token
 
   useEffect(() => {
     fetchSeatLayout();
@@ -587,19 +588,40 @@ export const SeatSelection = ({ route, searchData, onConfirmBooking }) => {
 
   const fetchSeatLayout = async () => {
     setLoading(true);
+    setError('');
     try {
+      if (!token) {
+        setError('Please login to view seat layout');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/seats/${route.id}?date=${searchData.date}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/seats/${route.id}?date=${searchData.date}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
       if (response.ok) {
         const data = await response.json();
-        setSeatLayout(data.seat_layout);
+        // Handle both possible response formats
+        const seats = data.seat_layout || data.seats || data.layout || [];
+        setSeatLayout(seats);
+        
+        if (seats.length === 0) {
+          setError('No seat layout available for this route');
+        }
       } else {
-        setError('Failed to fetch seat layout');
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.detail || 'Failed to fetch seat layout');
       }
     } catch (error) {
-      setError('Network error occurred');
+      console.error('Seat layout fetch error:', error);
+      setError('Network error occurred while fetching seat layout');
     } finally {
       setLoading(false);
     }
