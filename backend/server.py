@@ -588,6 +588,8 @@ async def create_booking(booking: BookingRequest, current_user: dict = Depends(g
     }).to_list(length=1000)
     
     if existing_bookings:
+        # Log for debugging
+        logger.info(f"Seat conflict found. Requested seats: {booking.selected_seats}, Existing bookings: {[b.get('seats', []) for b in existing_bookings]}")
         raise HTTPException(status_code=400, detail="Some seats are already booked")
     
     # Get route price
