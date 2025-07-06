@@ -599,8 +599,21 @@ def generate_seat_layout(vehicle, booked_seats):
 @app.post("/api/bookings", response_model=BookingResponse)
 async def create_booking(booking: BookingRequest, current_user: dict = Depends(get_current_user)):
     """Create a new booking"""
-    # Generate booking reference
-    booking_ref = f"BT{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    # Generate unique identifiers
+    timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    random_suffix = f"{random.randint(1000, 9999)}"
+    
+    # Generate booking reference (main booking identifier)
+    booking_ref = f"BT{timestamp}"
+    
+    # Generate order ID (for the entire transaction)
+    order_id = f"ORD{timestamp}{random_suffix}"
+    
+    # Generate individual ticket numbers for each seat
+    ticket_numbers = []
+    for i, seat in enumerate(booking.selected_seats):
+        ticket_number = f"TKT{timestamp}{str(i+1).zfill(2)}{random_suffix}"
+        ticket_numbers.append(ticket_number)
     
     # Check seat availability
     existing_bookings = await db.bookings.find({
@@ -623,9 +636,26 @@ async def create_booking(booking: BookingRequest, current_user: dict = Depends(g
     
     total_price = route["price_base"] * len(booking.selected_seats)
     
+    # Create individual tickets for each seat/passenger
+    tickets = []
+    for i, (seat, passenger) in enumerate(zip(booking.selected_seats, booking.passenger_details)):
+        ticket = {
+            "ticket_number": ticket_numbers[i],
+            "seat_number": seat,
+            "passenger_name": f"{passenger.get('firstName', '')} {passenger.get('lastName', '')}".strip(),
+            "passenger_email": passenger.get('email', ''),
+            "passenger_phone": passenger.get('phone', ''),
+            "ticket_price": route["price_base"],
+            "qr_code": f"BMB-{booking_ref}-{ticket_numbers[i]}-{seat}"
+        }
+        tickets.append(ticket)
+    
     # Create booking
     booking_dict = {
         "booking_reference": booking_ref,
+        "order_id": order_id,
+        "ticket_numbers": ticket_numbers,
+        "tickets": tickets,
         "user_id": str(current_user["_id"]),
         "route_id": booking.route_id,
         "route_schedule_id": booking.route_id,
@@ -634,7 +664,8 @@ async def create_booking(booking: BookingRequest, current_user: dict = Depends(g
         "date": booking.date,
         "total_price": total_price,
         "status": "pending",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        "booking_type": "bus_ticket"
     }
     
     result = await db.bookings.insert_one(booking_dict)
