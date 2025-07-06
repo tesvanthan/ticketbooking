@@ -572,6 +572,7 @@ export const AdminManagement = () => {
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'buses' && <BusManagement />}
             {activeTab === 'routes' && <RouteManagement />}
+            {activeTab === 'agents' && <AgentManagement />}
             {activeTab === 'seats' && (
               <div className="text-center py-16">
                 <Square className="w-16 h-16 text-gray-400 mx-auto mb-4" />
