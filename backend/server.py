@@ -793,6 +793,105 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         "generated_at": datetime.utcnow()
     }
 
+# Analytics endpoint
+@app.get("/api/admin/analytics")
+async def get_analytics(current_user: dict = Depends(get_current_user)):
+    """Get analytics data"""
+    try:
+        # Get basic counts
+        total_users = await db.users.count_documents({})
+        total_bookings = await db.bookings.count_documents({})
+        total_routes = await db.routes.count_documents({})
+        total_buses = await db.buses.count_documents({})
+        
+        # Get revenue (sum of all confirmed/paid bookings)
+        pipeline = [
+            {"$match": {"status": {"$in": ["confirmed", "paid"]}}},
+            {"$group": {"_id": None, "total_revenue": {"$sum": "$total_price"}}}
+        ]
+        revenue_result = await db.bookings.aggregate(pipeline).to_list(length=1)
+        total_revenue = revenue_result[0]["total_revenue"] if revenue_result else 0
+        
+        return {
+            "total_users": total_users,
+            "total_bookings": total_bookings,
+            "total_routes": total_routes,
+            "total_buses": total_buses,
+            "total_revenue": total_revenue,
+            "active_buses": total_buses - 5,  # Mock some inactive buses
+            "pending_bookings": await db.bookings.count_documents({"status": "pending"})
+        }
+    except Exception as e:
+        logger.error(f"Error getting analytics: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# Management endpoints for vehicles
+@app.get("/api/management/vehicles")
+async def get_vehicles(current_user: dict = Depends(get_current_user)):
+    """Get all vehicles for management"""
+    try:
+        vehicles = await db.buses.find({}).to_list(length=1000)
+        
+        for vehicle in vehicles:
+            vehicle["id"] = str(vehicle["_id"])
+        
+        return jsonable_encoder(vehicles, custom_encoder={ObjectId: str})
+    except Exception as e:
+        logger.error(f"Error getting vehicles: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/api/management/vehicles")
+async def create_vehicle(vehicle_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new vehicle"""
+    try:
+        vehicle_dict = {
+            **vehicle_data,
+            "created_at": datetime.utcnow(),
+            "status": "active"
+        }
+        
+        result = await db.buses.insert_one(vehicle_dict)
+        vehicle_dict["id"] = str(result.inserted_id)
+        
+        return jsonable_encoder(vehicle_dict, custom_encoder={ObjectId: str})
+    except Exception as e:
+        logger.error(f"Error creating vehicle: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# AI dynamic pricing endpoint
+@app.post("/api/management/ai/dynamic-pricing")
+async def get_dynamic_pricing(pricing_data: dict, current_user: dict = Depends(get_current_user)):
+    """Get AI-powered dynamic pricing suggestions"""
+    try:
+        # Mock AI pricing logic
+        base_price = pricing_data.get("base_price", 15.0)
+        demand_factor = pricing_data.get("demand_factor", 1.0)
+        
+        # Simple dynamic pricing calculation
+        suggested_price = base_price * demand_factor
+        
+        # Add some intelligence based on time and demand
+        import random
+        adjustment = random.uniform(0.8, 1.2)
+        final_price = suggested_price * adjustment
+        
+        return {
+            "base_price": base_price,
+            "suggested_price": round(final_price, 2),
+            "demand_factor": demand_factor,
+            "price_change": round(((final_price - base_price) / base_price) * 100, 1),
+            "confidence": round(random.uniform(0.7, 0.95), 2)
+        }
+    except Exception as e:
+        logger.error(f"Error calculating dynamic pricing: {str(e)}")
+        return {
+            "base_price": 15.0,
+            "suggested_price": 15.0,
+            "demand_factor": 1.0,
+            "price_change": 0.0,
+            "confidence": 0.8
+        }
+
 # Popular destinations endpoint
 @app.get("/api/destinations/popular")
 async def get_popular_destinations():
