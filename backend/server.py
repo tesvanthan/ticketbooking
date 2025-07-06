@@ -512,7 +512,7 @@ async def get_seat_layout(
             route.get("vehicle_type", "Standard Bus"), 
             route.get("capacity", 45),
             route_schedule_id,
-            route_schedule_id.split("-")[2] if len(route_schedule_id.split("-")) >= 3 else None
+            date
         )
         
         # Return seat layout with route information
