@@ -60,6 +60,12 @@ const TicketCard = ({ booking, onPrint, onSend, onDownload }) => {
           <div className="text-right">
             <div className="text-sm opacity-90">Booking Reference</div>
             <div className="text-lg font-bold">{booking.booking_reference}</div>
+            {booking.order_id && (
+              <>
+                <div className="text-xs opacity-75 mt-1">Order ID</div>
+                <div className="text-sm font-medium">{booking.order_id}</div>
+              </>
+            )}
           </div>
         </div>
       </div>
