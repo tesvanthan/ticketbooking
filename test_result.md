@@ -275,6 +275,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Testing confirmed the seat layout API is working correctly with no 500 errors. The API responds properly and contains expected seat and layout data."
+      - working: true
+        agent: "testing"
+        comment: "Performed additional testing of the 'Failed to fetch seat layout' error. Completed a search from Phnom Penh to Siem Reap and clicked on 'Select Seats'. The search results displayed correctly showing 3 routes. When clicking on 'Select Seats', no 'Failed to fetch seat layout' error message was encountered. The seat selection process requires authentication, which is expected behavior for security reasons."
 
   - task: "Payment Method Selection"
     implemented: true
