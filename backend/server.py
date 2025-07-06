@@ -832,14 +832,33 @@ async def get_vehicles(current_user: dict = Depends(get_current_user)):
     try:
         vehicles = await db.buses.find({}).to_list(length=1000)
         
-        # If no vehicles exist, return empty array instead of error
+        # If no vehicles exist, return empty array
         if not vehicles:
             return []
         
+        # Convert ObjectId to string and add missing fields with defaults
+        result = []
         for vehicle in vehicles:
-            vehicle["id"] = str(vehicle["_id"])
+            vehicle_dict = {
+                "id": str(vehicle["_id"]),
+                "vehicle_number": vehicle.get("vehicle_number", "N/A"),
+                "vehicle_type": vehicle.get("vehicle_type", "Bus"),
+                "model": vehicle.get("model", "Unknown"),
+                "year": vehicle.get("year", 2020),
+                "capacity": vehicle.get("capacity", 45),
+                "total_seats": vehicle.get("total_seats", 45),
+                "fuel_type": vehicle.get("fuel_type", "Diesel"),
+                "max_speed": vehicle.get("max_speed", 80),
+                "is_active": vehicle.get("is_active", True),
+                "maintenance_due": vehicle.get("maintenance_due", "2025-12-31"),
+                "total_trips": vehicle.get("total_trips", 0),
+                "revenue": vehicle.get("revenue", 0.0),
+                "created_at": vehicle.get("created_at", datetime.utcnow()),
+                "status": vehicle.get("status", "active")
+            }
+            result.append(vehicle_dict)
         
-        return jsonable_encoder(vehicles, custom_encoder={ObjectId: str})
+        return result
     except Exception as e:
         logger.error(f"Error getting vehicles: {str(e)}")
         return []  # Return empty array instead of error
