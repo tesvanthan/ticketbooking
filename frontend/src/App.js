@@ -1102,13 +1102,27 @@ const BookingPage = () => {
     setLoading(true);
     
     try {
-      console.log('Searching with data:', data);
+      // Validate required fields
+      if (!data.origin || !data.destination || !data.date) {
+        throw new Error('Please fill in all required fields');
+      }
+      
+      // Ensure all required fields are present with proper data types
+      const searchPayload = {
+        origin: String(data.origin).trim(),
+        destination: String(data.destination).trim(),
+        date: String(data.date),
+        passengers: parseInt(data.passengers) || 1,
+        transport_type: String(data.transport_type || 'bus')
+      };
+      
+      console.log('Searching with validated data:', searchPayload);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(searchPayload)
       });
       
       if (response.ok) {
@@ -1117,11 +1131,13 @@ const BookingPage = () => {
         setSearchResults(results);
         setCurrentStep('results');
       } else {
-        throw new Error('Search failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Search API error:', errorData);
+        throw new Error(errorData.detail || 'Search failed');
       }
     } catch (error) {
       console.error('Search error:', error);
-      alert('Search failed. Please try again.');
+      alert(`Search failed: ${error.message}`);
     } finally {
       setLoading(false);
     }
