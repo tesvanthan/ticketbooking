@@ -530,6 +530,7 @@ test_plan:
     - "Bulk Operations"
     - "Failed to fetch seat layout error"
     - "Select payment method error"
+    - "Seat Layout API"
   test_all: false
   test_priority: "stuck_first"
 
