@@ -431,7 +431,11 @@ async def generate_schedules_for_route(route, date):
 # Seat selection endpoints
 # Enhanced seat layout endpoint with proper error handling
 @app.get("/api/seats/{route_schedule_id}")
-async def get_seat_layout(route_schedule_id: str, current_user: dict = Depends(get_current_user)):
+async def get_seat_layout(
+    route_schedule_id: str, 
+    date: str = None,
+    current_user: dict = Depends(get_current_user)
+):
     """Get seat layout for a specific route schedule"""
     try:
         # Parse route_schedule_id to extract route information
