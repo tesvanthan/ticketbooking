@@ -315,16 +315,11 @@ const SearchSection = ({ activeTab, onSearch }) => {
     if (field === 'origin' || field === 'destination') {
       if (value.length > 2) {
         try {
-          console.log('Fetching suggestions for:', value, 'field:', field);
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/suggestions?q=${value}`);
           if (response.ok) {
             const data = await response.json();
-            console.log('Suggestions received:', data);
             setSuggestions(data);
             setActiveSuggestion(field);
-            console.log('State updated - suggestions:', data, 'activeSuggestion:', field);
-          } else {
-            console.error('Suggestions API error:', response.status, response.statusText);
           }
         } catch (error) {
           console.error('Error fetching suggestions:', error);
@@ -338,7 +333,6 @@ const SearchSection = ({ activeTab, onSearch }) => {
           
           const filtered = (transportSuggestions[activeTab] || transportSuggestions.bus)
             .filter(dest => dest.toLowerCase().includes(value.toLowerCase()));
-          console.log('Using fallback suggestions:', filtered);
           setSuggestions(filtered.slice(0, 5));
           setActiveSuggestion(field);
         }
