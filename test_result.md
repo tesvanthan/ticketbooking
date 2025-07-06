@@ -263,9 +263,9 @@ backend:
 
   - task: "Seat Layout API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -278,6 +278,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Performed additional testing of the 'Failed to fetch seat layout' error. Completed a search from Phnom Penh to Siem Reap and clicked on 'Select Seats'. The search results displayed correctly showing 3 routes. When clicking on 'Select Seats', no 'Failed to fetch seat layout' error message was encountered. The seat selection process requires authentication, which is expected behavior for security reasons."
+      - working: false
+        agent: "testing"
+        comment: "Further testing revealed a frontend issue with the seat layout functionality. When clicking 'Select Seats' after logging in, the application shows an 'Invalid route schedule ID format' error. Network monitoring shows API calls to '/api/seats/undefined?date=2025-07-06' returning 400 errors. The issue is in the frontend where the route ID is not being properly passed to the API call. The backend API itself is working correctly, but the frontend is not calling it properly."
 
   - task: "Payment Method Selection"
     implemented: true
