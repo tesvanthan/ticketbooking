@@ -1,6 +1,6 @@
 # BusTicket - Enhanced Bus Booking Platform
 
-A modern, AI-powered bus booking platform inspired by BookMeBus.com with enhanced features for the AI era. Built with React, TailwindCSS, and Framer Motion.
+A modern, AI-powered bus booking platform inspired by KHDOT.com with enhanced features for the AI era. Built with React, TailwindCSS, and Framer Motion.
 
 ## 🚀 Features
 
